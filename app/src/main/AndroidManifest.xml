@@ -23,6 +23,12 @@
 
         <activity android:name=".ui.auth.RegisterActivity" />
         <activity android:name=".ui.main.MainActivity" />
+        <activity android:name=".ui.event.AddEventActivity" />
+        <activity android:name=".ui.event.EditEventActivity" />
+        <activity android:name=".ui.event.EventListActivity" />
+        <activity android:name=".ui.event.EventDetailActivity" />
+        <activity android:name=".ui.vendor.AddVendorActivity" />
+        <activity android:name=".ui.vendor.VendorListActivity" />
 
     </application>
 

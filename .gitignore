@@ -1,6 +1,8 @@
+# Android Studio / IntelliJ IDEA
 *.iml
 .gradle
 /local.properties
+/.idea/
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
@@ -12,4 +14,26 @@
 /captures
 .externalNativeBuild
 .cxx
+
+# Gradle
+.gradle/
+build/
+
+# Android Studio
+*.apk
+*.ap_
+*.dex
+*.class
+
+# Log files
+*.log
+
+# Local configuration file (contains sensitive info)
 local.properties
+
+# Kotlin
+.kotlin/
+
+# System files
+.DS_Store
+Thumbs.db
