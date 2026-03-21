@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityAddEventBinding;
 import com.example.eventmanager.model.Event;
+import com.example.eventmanager.model.Location;
 import com.example.eventmanager.utils.SessionManager;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -43,7 +44,6 @@ public class AddEventActivity extends AppCompatActivity {
     }
 
     private void setupDateTimePickers() {
-        // Date Picker
         binding.tvSelectDate.setOnClickListener(v -> {
             new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
                 calendar.set(Calendar.YEAR, year);
@@ -53,7 +53,6 @@ public class AddEventActivity extends AppCompatActivity {
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
         });
 
-        // Start Time Picker
         binding.tvStartTime.setOnClickListener(v -> {
             new TimePickerDialog(this, (view, hourOfDay, minute) -> {
                 Calendar time = Calendar.getInstance();
@@ -63,7 +62,6 @@ public class AddEventActivity extends AppCompatActivity {
             }, 8, 0, true).show();
         });
 
-        // End Time Picker
         binding.tvEndTime.setOnClickListener(v -> {
             new TimePickerDialog(this, (view, hourOfDay, minute) -> {
                 Calendar time = Calendar.getInstance();
@@ -79,7 +77,7 @@ public class AddEventActivity extends AppCompatActivity {
         String date = binding.tvSelectDate.getText().toString().trim();
         String startTime = binding.tvStartTime.getText().toString().trim();
         String endTime = binding.tvEndTime.getText().toString().trim();
-        String location = binding.etLocation.getText().toString().trim();
+        String locationName = binding.etLocation.getText().toString().trim();
         String description = binding.etDescription.getText().toString().trim();
 
         if (name.isEmpty()) {
@@ -92,29 +90,43 @@ public class AddEventActivity extends AppCompatActivity {
         }
 
         executorService.execute(() -> {
-            // Tạo đối tượng Event mới
-            // Mặc định locationId là null vì cần chọn từ danh sách Location có sẵn
-            // createdBy lấy từ SessionManager
-            int userId = sessionManager.getUserId();
+            try {
+                AppDatabase db = AppDatabase.getInstance(this);
+                int userId = sessionManager.getUserId();
 
-            Event event = new Event(
-                name,
-                description,
-                "Chung", // Event type mặc định
-                date + " " + startTime,
-                date + " " + endTime,
-                null, // locationId
-                userId,
-                "Đang diễn ra",
-                50000000.0 // Ngân sách mặc định 50tr VNĐ (có thể thêm input sau)
-            );
+                // 1. Xử lý Location trước
+                Integer locationId = null;
+                if (!locationName.isEmpty()) {
+                    Location loc = new Location(locationName, locationName, "", 0.0, 0.0);
+                    long newLocId = db.locationDao().insertLocation(loc);
+                    locationId = (int) newLocId;
+                }
 
-            AppDatabase.getInstance(this).eventDao().insertEvent(event);
+                // 2. Tạo và Lưu Event
+                Event event = new Event(
+                    name,
+                    description,
+                    "Chung",
+                    date + " " + startTime,
+                    date + " " + endTime,
+                    locationId,
+                    userId,
+                    "Đang diễn ra",
+                    50000000.0
+                );
 
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Thêm sự kiện thành công!", Toast.LENGTH_SHORT).show();
-                finish();
-            });
+                db.eventDao().insertEvent(event);
+
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Thêm sự kiện thành công!", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
+                    finish();
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Lỗi khi lưu sự kiện: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
         });
     }
 
