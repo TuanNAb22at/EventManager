@@ -1,9 +1,10 @@
 package com.example.eventmanager.model;
 
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "roles")
+@Entity(tableName = "roles", indices = {@Index(value = {"roleName"}, unique = true)})
 public class Role {
     @PrimaryKey(autoGenerate = true)
     private int id;

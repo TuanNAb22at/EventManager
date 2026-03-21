@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
         Schedule.class, Feedback.class, Role.class, UserRole.class,
         EventVendor.class
     },
-    version = 12,
+    version = 13,
     exportSchema = false
 )
 @TypeConverters(DateConverter.class)
@@ -58,9 +58,11 @@ public abstract class AppDatabase extends RoomDatabase {
                                 // Initialize roles on creation
                                 Executors.newSingleThreadExecutor().execute(() -> {
                                     AppDatabase database = getInstance(context);
-                                    database.roleDao().insertRole(new Role(SessionManager.ROLE_ORGANIZER));
-                                    database.roleDao().insertRole(new Role(SessionManager.ROLE_VENDOR));
-                                    database.roleDao().insertRole(new Role(SessionManager.ROLE_STAFF));
+                                    if (database.roleDao().getRoleCount() == 0) {
+                                        database.roleDao().insertRole(new Role(SessionManager.ROLE_ORGANIZER));
+                                        database.roleDao().insertRole(new Role(SessionManager.ROLE_VENDOR));
+                                        database.roleDao().insertRole(new Role(SessionManager.ROLE_STAFF));
+                                    }
                                 });
                             }
                         })
