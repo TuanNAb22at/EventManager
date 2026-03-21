@@ -2,12 +2,18 @@ package com.example.eventmanager.ui.budget;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
+import android.widget.EditText;
+import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.eventmanager.adapter.BudgetPlanAdapter;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityBudgetPlanBinding;
 import com.example.eventmanager.model.Budget;
+import com.example.eventmanager.model.Event;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +50,9 @@ public class BudgetPlanActivity extends AppCompatActivity {
             intent.putExtra("EVENT_ID", eventId);
             startActivity(intent);
         });
+
+        // Cho phép chỉnh sửa tổng ngân sách khi nhấn vào số tiền
+        binding.tvTotalBudget.setOnClickListener(v -> showEditBudgetDialog());
     }
 
     private void setupRecyclerView() {
@@ -52,6 +61,44 @@ public class BudgetPlanActivity extends AppCompatActivity {
         });
         binding.rvBudgets.setLayoutManager(new LinearLayoutManager(this));
         binding.rvBudgets.setAdapter(adapter);
+    }
+
+    private void showEditBudgetDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Chỉnh sửa tổng ngân sách");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        input.setText(String.valueOf((long)totalBudget));
+        builder.setView(input);
+
+        builder.setPositiveButton("Cập nhật", (dialog, which) -> {
+            String newBudgetStr = input.getText().toString();
+            if (!newBudgetStr.isEmpty()) {
+                try {
+                    double newBudget = Double.parseDouble(newBudgetStr);
+                    updateTotalBudget(newBudget);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void updateTotalBudget(double newBudget) {
+        executorService.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            Event event = db.eventDao().getEventById(eventId);
+            if (event != null) {
+                event.totalBudget = newBudget;
+                db.eventDao().updateEvent(event);
+                totalBudget = newBudget;
+                loadBudgetData(); // Tải lại để cập nhật UI
+            }
+        });
     }
 
     private void loadBudgetData() {
@@ -80,9 +127,9 @@ public class BudgetPlanActivity extends AppCompatActivity {
                 binding.tvProgressPercent.setText(percent + "%");
                 
                 if (remaining < 0) {
-                    binding.tvRemaining.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    binding.tvRemaining.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
                 } else {
-                    binding.tvRemaining.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                    binding.tvRemaining.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
                 }
             });
         });
