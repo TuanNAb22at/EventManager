@@ -34,4 +34,13 @@ public class BudgetRepository {
     public void delete(Budget budget) {
         budgetDao.deleteBudget(budget);
     }
+
+    public double getTotalSpentByEventId(int eventId) {
+        List<Budget> budgets = getBudgetsByEventId(eventId);
+        double total = 0;
+        for (Budget b : budgets) {
+            total += b.amount;
+        }
+        return total;
+    }
 }

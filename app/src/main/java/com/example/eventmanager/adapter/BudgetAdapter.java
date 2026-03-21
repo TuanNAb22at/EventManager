@@ -33,7 +33,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
     @Override
     public void onBindViewHolder(@NonNull BudgetViewHolder holder, int position) {
         Budget budget = budgets.get(position);
-        holder.totalTextView.setText(String.valueOf(budget.total));
+        holder.totalTextView.setText(String.valueOf(budget.amount));
         holder.noteTextView.setText(budget.note);
         holder.itemView.setOnClickListener(v -> onItemClick.onItemClick(budget));
     }

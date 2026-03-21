@@ -13,7 +13,7 @@
         android:theme="@style/Theme.EventManager">
 
         <activity android:name=".ui.splash.SplashActivity"
-            android:theme="@style/Theme.EventManager.NoActionBar"
+            android:theme="@style/Theme.App.Starting"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,6 +35,9 @@
         <activity android:name=".ui.guest.GuestListActivity" />
         <activity android:name=".ui.budget.AddBudgetActivity" />
         <activity android:name=".ui.budget.BudgetListActivity" />
+        <activity android:name=".ui.budget.BudgetPlanActivity" />
+        <activity android:name=".ui.budget.AddBudgetItemActivity" />
+        <activity android:name=".ui.budget.BudgetEventActivity" />
         <activity android:name=".ui.task.AddTaskActivity" />
         <activity android:name=".ui.task.TaskListActivity" />
         <activity android:name=".ui.schedule.AddScheduleActivity" />

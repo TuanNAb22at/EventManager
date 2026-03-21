@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
         Schedule.class, Feedback.class, Role.class, UserRole.class,
         EventVendor.class
     },
-    version = 13,
+    version = 14,
     exportSchema = false
 )
 @TypeConverters(DateConverter.class)
