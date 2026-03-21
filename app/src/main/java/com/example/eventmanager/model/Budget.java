@@ -4,8 +4,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
+import java.util.Date;
 
 @Entity(
+    tableName = "budget",
     foreignKeys = @ForeignKey(
         entity = Event.class,
         parentColumns = "id",
@@ -21,28 +23,30 @@ public class Budget {
     @ColumnInfo(name = "eventId", index = true)
     public int eventId;
 
-    @ColumnInfo(name = "total")
-    public double total;
+    @ColumnInfo(name = "title")
+    public String title;
+
+    @ColumnInfo(name = "amount")
+    public double amount;
+
+    @ColumnInfo(name = "category")
+    public String category; // Ví dụ: Thuê mặt bằng, Ăn uống, Trang trí...
+
+    @ColumnInfo(name = "date")
+    public Date date;
 
     @ColumnInfo(name = "note")
     public String note;
 
-    // Empty constructor for Room
     public Budget() {
     }
 
-    // Full constructor
-    public Budget(int id, int eventId, double total, String note) {
-        this.id = id;
+    public Budget(int eventId, String title, double amount, String category, Date date, String note) {
         this.eventId = eventId;
-        this.total = total;
-        this.note = note;
-    }
-
-    // Constructor without id (for insert)
-    public Budget(int eventId, double total, String note) {
-        this.eventId = eventId;
-        this.total = total;
+        this.title = title;
+        this.amount = amount;
+        this.category = category;
+        this.date = date;
         this.note = note;
     }
 }

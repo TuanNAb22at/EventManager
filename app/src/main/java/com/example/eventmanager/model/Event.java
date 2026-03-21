@@ -43,21 +43,21 @@ public class Event {
     public String endAt;
 
     @ColumnInfo(name = "locationId", index = true)
-    public Integer locationId; // Changed to Integer to allow null
+    public Integer locationId;
 
     @ColumnInfo(name = "createdBy", index = true)
     public int createdBy;
 
     @ColumnInfo(name = "status")
-    public String status; // DRAFT, PREPARING, ONGOING, FINISHED, CANCELLED
+    public String status;
 
-    // Empty constructor for Room
+    @ColumnInfo(name = "totalBudget")
+    public double totalBudget; // Tổng ngân sách dự kiến
+
     public Event() {
     }
 
-    // Full constructor
-    public Event(int id, String name, String description, String eventType, String startAt, String endAt, Integer locationId, int createdBy, String status) {
-        this.id = id;
+    public Event(String name, String description, String eventType, String startAt, String endAt, Integer locationId, int createdBy, String status, double totalBudget) {
         this.name = name;
         this.description = description;
         this.eventType = eventType;
@@ -66,17 +66,6 @@ public class Event {
         this.locationId = locationId;
         this.createdBy = createdBy;
         this.status = status;
-    }
-
-    // Constructor without id (for insert)
-    public Event(String name, String description, String eventType, String startAt, String endAt, Integer locationId, int createdBy, String status) {
-        this.name = name;
-        this.description = description;
-        this.eventType = eventType;
-        this.startAt = startAt;
-        this.endAt = endAt;
-        this.locationId = locationId;
-        this.createdBy = createdBy;
-        this.status = status;
+        this.totalBudget = totalBudget;
     }
 }

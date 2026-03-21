@@ -17,6 +17,7 @@ import com.example.eventmanager.R;
 import com.example.eventmanager.databinding.ActivityMainBinding;
 import com.example.eventmanager.ui.auth.ChangePasswordActivity;
 import com.example.eventmanager.ui.auth.LoginActivity;
+import com.example.eventmanager.ui.budget.BudgetEventActivity;
 import com.example.eventmanager.ui.event.AddEventActivity;
 import com.example.eventmanager.ui.profile.ProfileActivity;
 import com.example.eventmanager.ui.vendor.VendorListActivity;
@@ -130,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, VendorListActivity.class));
                 return true;
             } else if (itemId == R.id.nav_budget) {
+                startActivity(new Intent(MainActivity.this, BudgetEventActivity.class));
                 return true;
             }
             return true;
