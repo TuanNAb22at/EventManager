@@ -35,8 +35,9 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setupRoleDropdown() {
-        String[] displayRoles = {"Người tổ chức", "Nhà cung cấp"};
-        String[] actualRoles = {SessionManager.ROLE_ORGANIZER, SessionManager.ROLE_VENDOR};
+        // Cập nhật: Chỉ để lại ORGANIZER và STAFF trong phần đăng ký
+        String[] displayRoles = {"Người tổ chức", "Nhân viên"};
+        String[] actualRoles = {SessionManager.ROLE_ORGANIZER, SessionManager.ROLE_STAFF};
         
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayRoles);
         binding.actvRole.setAdapter(adapter);
@@ -137,7 +138,6 @@ public class RegisterActivity extends AppCompatActivity {
     private void ensureRolesExist(AppDatabase db) {
         if (db.roleDao().getRoleCount() == 0) {
             db.roleDao().insertRole(new Role(SessionManager.ROLE_ORGANIZER));
-            db.roleDao().insertRole(new Role(SessionManager.ROLE_VENDOR));
             db.roleDao().insertRole(new Role(SessionManager.ROLE_STAFF));
         }
     }

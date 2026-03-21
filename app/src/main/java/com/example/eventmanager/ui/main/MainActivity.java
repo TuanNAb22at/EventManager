@@ -111,18 +111,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String getRoleDisplayName(String role) {
+        if (role == null) return "Người dùng";
         switch (role) {
             case SessionManager.ROLE_ORGANIZER: return "Người tổ chức";
-            case SessionManager.ROLE_VENDOR: return "Nhà cung cấp";
             case SessionManager.ROLE_STAFF: return "Nhân viên";
             default: return "Người dùng";
         }
     }
 
     private void applyRolePermissions() {
-        if (sessionManager.isVendor()) {
-            binding.fabAdd.setVisibility(View.GONE);
-        }
+        // No special permissions for removed VENDOR role
     }
 
     private void setupBottomNavigation() {

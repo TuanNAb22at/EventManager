@@ -13,7 +13,6 @@ public class SessionManager {
 
     public static final String ROLE_ORGANIZER = "ORGANIZER";
     public static final String ROLE_STAFF = "STAFF";
-    public static final String ROLE_VENDOR = "VENDOR";
 
     private final SharedPreferences pref;
     private final SharedPreferences.Editor editor;
@@ -58,10 +57,6 @@ public class SessionManager {
 
     public boolean isStaff() {
         return ROLE_STAFF.equals(getUserRole());
-    }
-
-    public boolean isVendor() {
-        return ROLE_VENDOR.equals(getUserRole());
     }
 
     public void logoutUser() {
