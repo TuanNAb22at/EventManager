@@ -20,6 +20,7 @@ public class RegisterActivity extends AppCompatActivity {
     private ActivityRegisterBinding binding;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private String selectedRole = "";
+    private boolean isProcessing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void handleRegister() {
+        if (isProcessing) return;
+
         String fullName = binding.etFullName.getText().toString().trim();
         String username = binding.etUsername.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
@@ -74,7 +77,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        binding.btnRegister.setEnabled(false);
+        setLoadingState(true);
 
         executorService.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
@@ -87,7 +90,7 @@ public class RegisterActivity extends AppCompatActivity {
                 
                 if (existingUser != null) {
                     runOnUiThread(() -> {
-                        binding.btnRegister.setEnabled(true);
+                        setLoadingState(false);
                         showCustomMessage(binding.getRoot(), "Tên đăng nhập này đã tồn tại!", true);
                     });
                 } else {
@@ -95,7 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
                     Role role = db.roleDao().getRoleByName(selectedRole);
                     if (role == null) {
                         runOnUiThread(() -> {
-                            binding.btnRegister.setEnabled(true);
+                            setLoadingState(false);
                             showCustomMessage(binding.getRoot(), "Lỗi: Vai trò '" + selectedRole + "' không tồn tại trong hệ thống", true);
                         });
                         return;
@@ -118,11 +121,17 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    binding.btnRegister.setEnabled(true);
+                    setLoadingState(false);
                     showCustomMessage(binding.getRoot(), "Lỗi: " + e.getMessage(), true);
                 });
             }
         });
+    }
+
+    private void setLoadingState(boolean isLoading) {
+        isProcessing = isLoading;
+        binding.btnRegister.setEnabled(!isLoading);
+        binding.btnRegister.setText(isLoading ? "ĐANG XỬ LÝ..." : "ĐĂNG KÝ");
     }
 
     private void ensureRolesExist(AppDatabase db) {

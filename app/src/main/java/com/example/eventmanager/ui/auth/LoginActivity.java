@@ -20,6 +20,7 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SessionManager sessionManager;
+    private boolean isProcessing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleLogin() {
+        if (isProcessing) return;
+
         String username = binding.etUsername.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
 
@@ -59,17 +62,13 @@ public class LoginActivity extends AppCompatActivity {
             binding.tilPassword.setError(null);
         }
 
-        binding.btnLogin.setEnabled(false);
-        binding.btnLogin.setText("ĐANG XỬ LÝ...");
+        setLoadingState(true);
 
         executorService.execute(() -> {
             try {
                 User user = AppDatabase.getInstance(this).userDao().getUserByUsername(username);
                 
                 runOnUiThread(() -> {
-                    binding.btnLogin.setEnabled(true);
-                    binding.btnLogin.setText("ĐĂNG NHẬP");
-
                     if (user != null && PasswordUtils.verifyPassword(password, user.getPassword())) {
                         
                         // Lấy role của user từ database
@@ -92,17 +91,23 @@ public class LoginActivity extends AppCompatActivity {
                             });
                         });
                     } else {
+                        setLoadingState(false);
                         showCustomMessage(binding.getRoot(), "Tên đăng nhập hoặc mật khẩu không chính xác", true);
                     }
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    binding.btnLogin.setEnabled(true);
-                    binding.btnLogin.setText("ĐĂNG NHẬP");
+                    setLoadingState(false);
                     showCustomMessage(binding.getRoot(), "Lỗi hệ thống: " + e.getMessage(), true);
                 });
             }
         });
+    }
+
+    private void setLoadingState(boolean isLoading) {
+        isProcessing = isLoading;
+        binding.btnLogin.setEnabled(!isLoading);
+        binding.btnLogin.setText(isLoading ? "ĐANG XỬ LÝ..." : "ĐĂNG NHẬP");
     }
 
     private void navigateToMain() {
