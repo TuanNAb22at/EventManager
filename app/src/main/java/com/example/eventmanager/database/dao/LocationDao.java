@@ -13,10 +13,10 @@ public interface LocationDao {
     Location getLocationById(int id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertLocation(Location location);
+    long insertLocation(Location location);
 
-//    @Update("UPDATE location SET name = :name, address = :address WHERE id = :id")
-//    void updateLocation(int id, String name, String address);
+    @Update
+    void updateLocation(Location location);
 
     @Delete
     void deleteLocation(Location location);
