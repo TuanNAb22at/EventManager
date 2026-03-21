@@ -9,6 +9,9 @@ public interface VendorDao {
     @Query("SELECT * FROM vendor")
     List<Vendor> getAllVendors();
 
+    @Query("SELECT * FROM vendor WHERE createdBy = :userId")
+    List<Vendor> getVendorsByUserId(int userId);
+
     @Query("SELECT * FROM vendor WHERE id = :id")
     Vendor getVendorById(int id);
 

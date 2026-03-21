@@ -17,7 +17,7 @@ import androidx.room.PrimaryKey;
             entity = User.class,
             parentColumns = "id",
             childColumns = "assignedTo",
-            onDelete = ForeignKey.SET_DEFAULT
+            onDelete = ForeignKey.SET_NULL
         )
     }
 )
@@ -36,7 +36,7 @@ public class Task {
     public String dueDate;
 
     @ColumnInfo(name = "assignedTo", index = true)
-    public int assignedTo;
+    public Integer assignedTo; // Changed to Integer to allow null
 
     @ColumnInfo(name = "priority")
     public int priority;
@@ -52,7 +52,7 @@ public class Task {
     }
 
     // Full constructor
-    public Task(int id, int eventId, String title, String dueDate, int assignedTo, int priority, String note, String status) {
+    public Task(int id, int eventId, String title, String dueDate, Integer assignedTo, int priority, String note, String status) {
         this.id = id;
         this.eventId = eventId;
         this.title = title;
@@ -64,7 +64,7 @@ public class Task {
     }
 
     // Constructor without id (for insert)
-    public Task(int eventId, String title, String dueDate, int assignedTo, int priority, String note, String status) {
+    public Task(int eventId, String title, String dueDate, Integer assignedTo, int priority, String note, String status) {
         this.eventId = eventId;
         this.title = title;
         this.dueDate = dueDate;

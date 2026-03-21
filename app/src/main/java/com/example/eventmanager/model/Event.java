@@ -6,12 +6,13 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(
+    tableName = "events",
     foreignKeys = {
         @ForeignKey(
             entity = Location.class,
             parentColumns = "id",
             childColumns = "locationId",
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.SET_NULL
         ),
         @ForeignKey(
             entity = User.class,
@@ -29,46 +30,51 @@ public class Event {
     @ColumnInfo(name = "name")
     public String name;
 
-    @ColumnInfo(name = "date")
-    public String date;
+    @ColumnInfo(name = "description")
+    public String description;
 
-    @ColumnInfo(name = "startTime")
-    public String startTime;
+    @ColumnInfo(name = "eventType")
+    public String eventType;
 
-    @ColumnInfo(name = "endTime")
-    public String endTime;
+    @ColumnInfo(name = "startAt")
+    public String startAt;
+
+    @ColumnInfo(name = "endAt")
+    public String endAt;
 
     @ColumnInfo(name = "locationId", index = true)
-    public int locationId;
+    public Integer locationId; // Changed to Integer to allow null
 
     @ColumnInfo(name = "createdBy", index = true)
     public int createdBy;
 
     @ColumnInfo(name = "status")
-    public String status;
+    public String status; // DRAFT, PREPARING, ONGOING, FINISHED, CANCELLED
 
     // Empty constructor for Room
     public Event() {
     }
 
     // Full constructor
-    public Event(int id, String name, String date, String startTime, String endTime, int locationId, int createdBy, String status) {
+    public Event(int id, String name, String description, String eventType, String startAt, String endAt, Integer locationId, int createdBy, String status) {
         this.id = id;
         this.name = name;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.description = description;
+        this.eventType = eventType;
+        this.startAt = startAt;
+        this.endAt = endAt;
         this.locationId = locationId;
         this.createdBy = createdBy;
         this.status = status;
     }
 
     // Constructor without id (for insert)
-    public Event(String name, String date, String startTime, String endTime, int locationId, int createdBy, String status) {
+    public Event(String name, String description, String eventType, String startAt, String endAt, Integer locationId, int createdBy, String status) {
         this.name = name;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.description = description;
+        this.eventType = eventType;
+        this.startAt = startAt;
+        this.endAt = endAt;
         this.locationId = locationId;
         this.createdBy = createdBy;
         this.status = status;

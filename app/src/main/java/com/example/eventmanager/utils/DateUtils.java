@@ -49,5 +49,8 @@ public class DateUtils {
             return null;
         }
     }
-}
 
+    public static String getCurrentDate() {
+        return formatDate(new Date());
+    }
+}

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityAddVendorBinding;
 import com.example.eventmanager.model.Vendor;
+import com.example.eventmanager.utils.SessionManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -14,6 +15,7 @@ import java.util.concurrent.Executors;
 public class AddVendorActivity extends AppCompatActivity {
     
     private ActivityAddVendorBinding binding;
+    private SessionManager sessionManager;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private List<String> existingServiceTypes = new ArrayList<>();
 
@@ -22,6 +24,8 @@ public class AddVendorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAddVendorBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        sessionManager = new SessionManager(this);
 
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         binding.btnCancel.setOnClickListener(v -> finish());
@@ -76,8 +80,10 @@ public class AddVendorActivity extends AppCompatActivity {
             return;
         }
 
+        int currentUserId = sessionManager.getUserId();
+
         executorService.execute(() -> {
-            Vendor vendor = new Vendor(name, phone, email, serviceType);
+            Vendor vendor = new Vendor(name, phone, email, serviceType, currentUserId);
             AppDatabase.getInstance(this).vendorDao().insertVendor(vendor);
             runOnUiThread(() -> {
                 setResult(RESULT_OK);

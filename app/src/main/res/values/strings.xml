@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">EventManager</string>
+    <string name="login_title">Đăng nhập</string>
+    <string name="username_hint">Tên đăng nhập</string>
+    <string name="password_hint">Mật khẩu của bạn</string>
+    <string name="remember_me">Ghi nhớ đăng nhập</string>
+    <string name="login_button">ĐĂNG NHẬP</string>
+    <string name="register">Đăng ký</string>
+    <string name="register_label">Chưa có tài khoản?</string>
+    <string name="login_success">Đăng nhập thành công!</string>
+    <string name="login_fail">Tên đăng nhập hoặc mật khẩu không chính xác</string>
+    <string name="login_empty">Vui lòng nhập đầy đủ thông tin</string>
+
+    <!-- Bottom Navigation Menu -->
+    <string name="menu_budget">Ngân sách</string>
+    <string name="menu_vendor">Dịch vụ</string>
+    <string name="menu_add_event">Tạo Sự Kiện</string>
+    <string name="menu_map">Bản đồ</string>
+    <string name="menu_profile">Tài khoản</string>
 </resources>

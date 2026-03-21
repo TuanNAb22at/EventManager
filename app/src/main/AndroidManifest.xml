@@ -12,23 +12,36 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EventManager">
 
-        <activity
-            android:name=".ui.auth.LoginActivity"
+        <activity android:name=".ui.splash.SplashActivity"
+            android:theme="@style/Theme.EventManager.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".ui.auth.LoginActivity" />
         <activity android:name=".ui.auth.RegisterActivity" />
+        <activity android:name=".ui.auth.ChangePasswordActivity" />
         <activity android:name=".ui.main.MainActivity" />
+        <activity android:name=".ui.profile.ProfileActivity" />
+        <activity android:name=".ui.vendor.AddVendorActivity" />
+        <activity android:name=".ui.vendor.VendorListActivity" />
         <activity android:name=".ui.event.AddEventActivity" />
         <activity android:name=".ui.event.EditEventActivity" />
         <activity android:name=".ui.event.EventListActivity" />
         <activity android:name=".ui.event.EventDetailActivity" />
-        <activity android:name=".ui.vendor.AddVendorActivity" />
-        <activity android:name=".ui.vendor.VendorListActivity" />
+        <activity android:name=".ui.guest.AddGuestActivity" />
+        <activity android:name=".ui.guest.GuestListActivity" />
+        <activity android:name=".ui.budget.AddBudgetActivity" />
+        <activity android:name=".ui.budget.BudgetListActivity" />
+        <activity android:name=".ui.task.AddTaskActivity" />
+        <activity android:name=".ui.task.TaskListActivity" />
+        <activity android:name=".ui.schedule.AddScheduleActivity" />
+        <activity android:name=".ui.schedule.ScheduleListActivity" />
+        <activity android:name=".ui.feedback.AddFeedbackActivity" />
+        <activity android:name=".ui.feedback.FeedbackListActivity" />
+        <activity android:name=".ui.location.LocationMapActivity" />
 
     </application>
 

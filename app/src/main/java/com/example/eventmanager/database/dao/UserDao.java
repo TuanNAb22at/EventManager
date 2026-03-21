@@ -12,14 +12,24 @@ public interface UserDao {
     @Query("SELECT * FROM user WHERE id = :id")
     User getUserById(int id);
 
-    @Query("SELECT * FROM user WHERE username = :username AND password = :password LIMIT 1")
-    User getUserByUsernameAndPassword(String username, String password);
-
     @Query("SELECT * FROM user WHERE username = :username LIMIT 1")
     User getUserByUsername(String username);
 
+    // Lấy danh sách Role Name của một User dựa trên username
+    @Query("SELECT r.roleName FROM roles r " +
+           "JOIN user_roles ur ON r.id = ur.roleId " +
+           "JOIN user u ON u.id = ur.userId " +
+           "WHERE u.username = :username")
+    List<String> getUserRolesByUsername(String username);
+
+    @Query("SELECT u.* FROM user u " +
+           "JOIN user_roles ur ON u.id = ur.userId " +
+           "JOIN roles r ON r.id = ur.roleId " +
+           "WHERE u.username = :username AND r.roleName = :role LIMIT 1")
+    User getUserByUsernameAndRole(String username, String role);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertUser(User user);
+    long insertUser(User user);
 
     @Update
     void updateUser(User user);

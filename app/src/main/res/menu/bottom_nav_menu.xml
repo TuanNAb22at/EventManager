@@ -7,9 +7,10 @@
     <item
         android:id="@+id/nav_supplier"
         android:icon="@drawable/ic_supplier"
-        android:title="Nhà cung cấp" />
+        android:title="Dịch vụ" />
     <item
         android:id="@+id/nav_placeholder"
+        android:icon="@android:color/transparent"
         android:title=""
         android:enabled="false" />
     <item
@@ -17,7 +18,7 @@
         android:icon="@drawable/ic_map"
         android:title="Bản đồ" />
     <item
-        android:id="@+id/nav_profile"
+        android:id="@+id/nav_profile_menu"
         android:icon="@drawable/ic_user"
         android:title="Của tôi" />
 </menu>

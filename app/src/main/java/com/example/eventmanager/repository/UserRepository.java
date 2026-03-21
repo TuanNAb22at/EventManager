@@ -19,12 +19,15 @@ public class UserRepository {
         return userDao.getUserById(id);
     }
 
-    public User getUserByUsernameAndPassword(String username, String password) {
-        return userDao.getUserByUsernameAndPassword(username, password);
-    }
-
+    // Xóa phương thức lỗi và thay bằng phương thức lấy User theo Username
+    // Việc kiểm tra mật khẩu sẽ thực hiện ở Service/Activity bằng PasswordUtils
     public User getUserByUsername(String username) {
         return userDao.getUserByUsername(username);
+    }
+
+    // Thêm phương thức hỗ trợ Role-Based Access Control
+    public User getUserByUsernameAndRole(String username, String role) {
+        return userDao.getUserByUsernameAndRole(username, role);
     }
 
     public void insert(User user) {
