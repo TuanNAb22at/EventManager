@@ -40,8 +40,8 @@ public class SplashActivity extends AppCompatActivity {
 
     private void initializeRoles() {
         AppDatabase db = AppDatabase.getInstance(this);
-        // Double check roles exist
-        String[] roles = {SessionManager.ROLE_ORGANIZER, SessionManager.ROLE_VENDOR, SessionManager.ROLE_STAFF};
+        // Double check roles exist - VENDOR REMOVED
+        String[] roles = {SessionManager.ROLE_ORGANIZER, SessionManager.ROLE_STAFF};
         for (String roleName : roles) {
             if (db.roleDao().getRoleByName(roleName) == null) {
                 db.roleDao().insertRole(new Role(roleName));

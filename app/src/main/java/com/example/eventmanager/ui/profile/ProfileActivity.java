@@ -77,7 +77,6 @@ public class ProfileActivity extends AppCompatActivity {
         if (role == null) return "Người dùng";
         switch (role) {
             case SessionManager.ROLE_ORGANIZER: return "Người tổ chức";
-            case SessionManager.ROLE_VENDOR: return "Nhà cung cấp";
             case SessionManager.ROLE_STAFF: return "Nhân viên";
             default: return "Người dùng";
         }

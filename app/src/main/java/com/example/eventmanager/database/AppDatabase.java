@@ -55,14 +55,11 @@ public abstract class AppDatabase extends RoomDatabase {
                             @Override
                             public void onCreate(@NonNull SupportSQLiteDatabase db) {
                                 super.onCreate(db);
-                                // Initialize roles on creation
+                                // Initialize roles on creation - VENDOR REMOVED
                                 Executors.newSingleThreadExecutor().execute(() -> {
                                     AppDatabase database = getInstance(context);
-                                    if (database.roleDao().getRoleCount() == 0) {
-                                        database.roleDao().insertRole(new Role(SessionManager.ROLE_ORGANIZER));
-                                        database.roleDao().insertRole(new Role(SessionManager.ROLE_VENDOR));
-                                        database.roleDao().insertRole(new Role(SessionManager.ROLE_STAFF));
-                                    }
+                                    database.roleDao().insertRole(new Role(SessionManager.ROLE_ORGANIZER));
+                                    database.roleDao().insertRole(new Role(SessionManager.ROLE_STAFF));
                                 });
                             }
                         })
