@@ -5,7 +5,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 
 @Entity(
-    tableName = "user_roles",
+    tableName = "user_role",
     primaryKeys = {"userId", "roleId"},
     foreignKeys = {
         @ForeignKey(entity = User.class, parentColumns = "id", childColumns = "userId", onDelete = ForeignKey.CASCADE),

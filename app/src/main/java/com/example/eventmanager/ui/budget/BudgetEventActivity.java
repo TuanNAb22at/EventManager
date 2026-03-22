@@ -54,9 +54,9 @@ public class BudgetEventActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         adapter = new BudgetEventAdapter(new ArrayList<>(), event -> {
             Intent intent = new Intent(this, BudgetPlanActivity.class);
-            intent.putExtra("EVENT_ID", event.id);
-            intent.putExtra("EVENT_NAME", event.name);
-            intent.putExtra("TOTAL_BUDGET", event.totalBudget);
+            intent.putExtra("EVENT_ID", event.getId());
+            intent.putExtra("EVENT_NAME", event.getName());
+            intent.putExtra("TOTAL_BUDGET", event.getTotalBudget());
             startActivity(intent);
         });
         binding.rvEvents.setLayoutManager(new LinearLayoutManager(this));
@@ -95,7 +95,7 @@ public class BudgetEventActivity extends AppCompatActivity {
     private void filterEvents(String query) {
         List<Event> filtered = new ArrayList<>();
         for (Event event : allEvents) {
-            if (event.name != null && event.name.toLowerCase().contains(query.toLowerCase())) {
+            if (event.getName() != null && event.getName().toLowerCase().contains(query.toLowerCase())) {
                 filtered.add(event);
             }
         }

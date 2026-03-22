@@ -36,10 +36,10 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Schedu
     @Override
     public void onBindViewHolder(@NonNull ScheduleViewHolder holder, int position) {
         Schedule schedule = schedules.get(position);
-        holder.titleTextView.setText(schedule.title);
-        holder.timeTextView.setText(schedule.time);
-        holder.descriptionTextView.setText(schedule.description);
-        holder.statusTextView.setText(schedule.status);
+        holder.titleTextView.setText(schedule.getTitle());
+        holder.timeTextView.setText(schedule.getTime());
+        holder.descriptionTextView.setText(schedule.getDescription());
+        holder.statusTextView.setText(schedule.getStatus());
         holder.itemView.setOnClickListener(v -> onItemClick.onItemClick(schedule));
     }
 

@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
         Schedule.class, Feedback.class, Role.class, UserRole.class,
         EventVendor.class
     },
-    version = 14,
+    version = 16,
     exportSchema = false
 )
 @TypeConverters(DateConverter.class)
@@ -50,12 +50,11 @@ public abstract class AppDatabase extends RoomDatabase {
                             "event_manager_db"
                         )
                         .setJournalMode(JournalMode.TRUNCATE)
-                        .fallbackToDestructiveMigration()
+                        .fallbackToDestructiveMigration() // Sử dụng Destructive Migration để giải quyết conflict nhanh
                         .addCallback(new Callback() {
                             @Override
                             public void onCreate(@NonNull SupportSQLiteDatabase db) {
                                 super.onCreate(db);
-                                // Initialize roles on creation - VENDOR REMOVED
                                 Executors.newSingleThreadExecutor().execute(() -> {
                                     AppDatabase database = getInstance(context);
                                     database.roleDao().insertRole(new Role(SessionManager.ROLE_ORGANIZER));

@@ -12,12 +12,12 @@ public interface RoleDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertRole(Role role);
 
-    @Query("SELECT * FROM roles WHERE roleName = :roleName LIMIT 1")
+    @Query("SELECT * FROM role WHERE roleName = :roleName LIMIT 1")
     Role getRoleByName(String roleName);
 
-    @Query("SELECT COUNT(*) FROM roles")
+    @Query("SELECT COUNT(*) FROM role")
     int getRoleCount();
 
-    @Query("SELECT * FROM roles")
+    @Query("SELECT * FROM role")
     List<Role> getAllRoles();
 }

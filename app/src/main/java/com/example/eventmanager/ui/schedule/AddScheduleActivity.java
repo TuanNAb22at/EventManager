@@ -2,7 +2,6 @@ package com.example.eventmanager.ui.schedule;
 
 import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -11,9 +10,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.eventmanager.R;
-import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.model.Schedule;
 import com.example.eventmanager.repository.ScheduleRepository;
+import com.example.eventmanager.utils.SessionManager;
 
 import java.util.Calendar;
 
@@ -24,6 +23,7 @@ public class AddScheduleActivity extends AppCompatActivity {
     private Spinner statusSpinner;
     private Button saveButton;
     private ScheduleRepository scheduleRepository;
+    private SessionManager sessionManager;
     private int eventId;
 
     @Override
@@ -39,6 +39,7 @@ public class AddScheduleActivity extends AppCompatActivity {
         }
 
         scheduleRepository = new ScheduleRepository(getApplication());
+        sessionManager = new SessionManager(this);
 
         titleEditText = findViewById(R.id.titleEditText);
         timeEditText = findViewById(R.id.timeEditText);
@@ -75,7 +76,14 @@ public class AddScheduleActivity extends AppCompatActivity {
             return;
         }
 
-        Schedule schedule = new Schedule(eventId, title, time, description, status);
+        Schedule schedule = new Schedule();
+        schedule.setEventId(eventId);
+        schedule.setTitle(title);
+        schedule.setTime(time);
+        schedule.setDescription(description);
+        schedule.setStatus(status);
+        schedule.setCreatedBy(sessionManager.getUserId());
+
         scheduleRepository.insert(schedule);
         Toast.makeText(this, "Schedule added", Toast.LENGTH_SHORT).show();
         finish();

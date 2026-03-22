@@ -35,8 +35,8 @@ public class BudgetEventAdapter extends RecyclerView.Adapter<BudgetEventAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Event event = events.get(position);
-        holder.tvEventName.setText(event.name);
-        holder.tvEventDate.setText(event.startAt);
+        holder.tvEventName.setText(event.getName());
+        holder.tvEventDate.setText(event.getStartAt());
         // holder.ivEventImage - Có thể dùng Glide hoặc Picasso để load ảnh nếu có URL
         
         holder.itemView.setOnClickListener(v -> listener.onItemClick(event));

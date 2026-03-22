@@ -83,7 +83,13 @@ public class AddVendorActivity extends AppCompatActivity {
         int currentUserId = sessionManager.getUserId();
 
         executorService.execute(() -> {
-            Vendor vendor = new Vendor(name, phone, email, serviceType, currentUserId);
+            Vendor vendor = new Vendor();
+            vendor.setName(name);
+            vendor.setPhone(phone);
+            vendor.setEmail(email);
+            vendor.setServiceType(serviceType);
+            vendor.setCreatedBy(currentUserId);
+
             AppDatabase.getInstance(this).vendorDao().insertVendor(vendor);
             runOnUiThread(() -> {
                 setResult(RESULT_OK);

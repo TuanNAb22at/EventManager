@@ -97,23 +97,28 @@ public class AddEventActivity extends AppCompatActivity {
                 // 1. Xử lý Location trước
                 Integer locationId = null;
                 if (!locationName.isEmpty()) {
-                    Location loc = new Location(locationName, locationName, "", 0.0, 0.0);
+                    Location loc = new Location();
+                    loc.setName(locationName);
+                    loc.setAddress(locationName);
+                    loc.setContact("");
+                    loc.setLatitude(0.0);
+                    loc.setLongitude(0.0);
+                    loc.setCreatedBy(userId);
                     long newLocId = db.locationDao().insertLocation(loc);
                     locationId = (int) newLocId;
                 }
 
                 // 2. Tạo và Lưu Event
-                Event event = new Event(
-                    name,
-                    description,
-                    "Chung",
-                    date + " " + startTime,
-                    date + " " + endTime,
-                    locationId,
-                    userId,
-                    "Đang diễn ra",
-                    50000000.0
-                );
+                Event event = new Event();
+                event.setName(name);
+                event.setDescription(description);
+                event.setEventType("Chung");
+                event.setStartAt(date + " " + startTime);
+                event.setEndAt(date + " " + endTime);
+                event.setLocationId(locationId);
+                event.setCreatedBy(userId);
+                event.setStatus("Đang diễn ra");
+                event.setTotalBudget(50000000.0);
 
                 db.eventDao().insertEvent(event);
 

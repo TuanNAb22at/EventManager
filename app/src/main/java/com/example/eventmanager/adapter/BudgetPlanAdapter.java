@@ -39,14 +39,14 @@ public class BudgetPlanAdapter extends RecyclerView.Adapter<BudgetPlanAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Budget budget = budgets.get(position);
-        holder.tvBudgetTitle.setText(budget.title);
+        holder.tvBudgetTitle.setText(budget.getTitle());
         
         NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-        holder.tvAmount.setText(formatter.format(budget.amount));
-        holder.tvBudgetInfo.setText("Danh mục: " + budget.category);
+        holder.tvAmount.setText(formatter.format(budget.getAmount()));
+        holder.tvBudgetInfo.setText("Danh mục: " + budget.getCategory());
 
         // Map icons and colors based on category
-        setupCategoryStyle(holder, budget.category);
+        setupCategoryStyle(holder, budget.getCategory());
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(budget));
     }

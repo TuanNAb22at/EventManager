@@ -33,9 +33,9 @@ public class GuestAdapter extends RecyclerView.Adapter<GuestAdapter.GuestViewHol
     @Override
     public void onBindViewHolder(@NonNull GuestViewHolder holder, int position) {
         Guest guest = guests.get(position);
-        holder.nameTextView.setText(guest.name);
-        holder.emailTextView.setText(guest.email);
-        holder.statusTextView.setText(guest.status);
+        holder.nameTextView.setText(guest.getName());
+        holder.emailTextView.setText(guest.getEmail());
+        holder.statusTextView.setText(guest.getStatus());
         holder.itemView.setOnClickListener(v -> onItemClick.onItemClick(guest));
     }
 

@@ -7,54 +7,48 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(
+    tableName = "vendor",
     foreignKeys = @ForeignKey(
         entity = User.class,
         parentColumns = "id",
         childColumns = "createdBy",
-        onDelete = ForeignKey.CASCADE
+        onDelete = ForeignKey.SET_NULL // Sửa lỗi 4: Tránh xóa vendor khi user bị xóa
     ),
     indices = {@Index(value = {"email"}, unique = true)}
 )
 public class Vendor {
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    public int id;
+    private int id;
+    private String name;
+    private String phone;
+    private String email;
+    private String serviceType;
+    
+    @ColumnInfo(index = true)
+    private Integer createdBy;
+    
+    private long createdAt;
+    private long updatedAt;
 
-    @ColumnInfo(name = "name")
-    public String name;
-
-    @ColumnInfo(name = "phone")
-    public String phone;
-
-    @ColumnInfo(name = "email")
-    public String email;
-
-    @ColumnInfo(name = "serviceType")
-    public String serviceType;
-
-    @ColumnInfo(name = "createdBy", index = true)
-    public int createdBy;
-
-    // Empty constructor for Room
     public Vendor() {
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
-    // Full constructor
-    public Vendor(int id, String name, String phone, String email, String serviceType, int createdBy) {
-        this.id = id;
-        this.name = name;
-        this.phone = phone;
-        this.email = email;
-        this.serviceType = serviceType;
-        this.createdBy = createdBy;
-    }
-
-    // Constructor without id (for insert)
-    public Vendor(String name, String phone, String email, String serviceType, int createdBy) {
-        this.name = name;
-        this.phone = phone;
-        this.email = email;
-        this.serviceType = serviceType;
-        this.createdBy = createdBy;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getServiceType() { return serviceType; }
+    public void setServiceType(String serviceType) { this.serviceType = serviceType; }
+    public Integer getCreatedBy() { return createdBy; }
+    public void setCreatedBy(Integer createdBy) { this.createdBy = createdBy; }
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public long getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 }

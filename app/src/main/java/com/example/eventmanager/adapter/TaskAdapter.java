@@ -33,9 +33,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task task = tasks.get(position);
-        holder.titleTextView.setText(task.title);
-        holder.dueDateTextView.setText(task.dueDate);
-        holder.statusTextView.setText(task.status);
+        holder.titleTextView.setText(task.getTitle());
+        holder.dueDateTextView.setText(task.getDueDate());
+        holder.statusTextView.setText(task.getStatus());
         holder.itemView.setOnClickListener(v -> onItemClick.onItemClick(task));
     }
 
