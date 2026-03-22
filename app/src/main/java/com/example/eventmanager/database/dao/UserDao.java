@@ -16,15 +16,15 @@ public interface UserDao {
     User getUserByUsername(String username);
 
     // Lấy danh sách Role Name của một User dựa trên username
-    @Query("SELECT r.roleName FROM roles r " +
-           "JOIN user_roles ur ON r.id = ur.roleId " +
+    @Query("SELECT r.roleName FROM role r " +
+           "JOIN user_role ur ON r.id = ur.roleId " +
            "JOIN user u ON u.id = ur.userId " +
            "WHERE u.username = :username")
     List<String> getUserRolesByUsername(String username);
 
     @Query("SELECT u.* FROM user u " +
-           "JOIN user_roles ur ON u.id = ur.userId " +
-           "JOIN roles r ON r.id = ur.roleId " +
+           "JOIN user_role ur ON u.id = ur.userId " +
+           "JOIN role r ON r.id = ur.roleId " +
            "WHERE u.username = :username AND r.roleName = :role LIMIT 1")
     User getUserByUsernameAndRole(String username, String role);
 

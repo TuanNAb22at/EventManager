@@ -6,7 +6,7 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(
-    tableName = "events",
+    tableName = "event",
     foreignKeys = {
         @ForeignKey(
             entity = Location.class,
@@ -18,54 +18,60 @@ import androidx.room.PrimaryKey;
             entity = User.class,
             parentColumns = "id",
             childColumns = "createdBy",
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.SET_NULL // Sửa lỗi 2: Không xóa event khi xóa user
         )
     }
 )
 public class Event {
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    public int id;
+    private int id;
+    private String name;
+    private String description;
+    private String eventType;
+    private String startAt;
+    private String endAt;
+    
+    @ColumnInfo(index = true)
+    private Integer locationId;
+    
+    @ColumnInfo(index = true)
+    private Integer createdBy; // Chuyển sang Integer để có thể NULL (SET_NULL)
 
-    @ColumnInfo(name = "name")
-    public String name;
-
-    @ColumnInfo(name = "description")
-    public String description;
-
-    @ColumnInfo(name = "eventType")
-    public String eventType;
-
-    @ColumnInfo(name = "startAt")
-    public String startAt;
-
-    @ColumnInfo(name = "endAt")
-    public String endAt;
-
-    @ColumnInfo(name = "locationId", index = true)
-    public Integer locationId;
-
-    @ColumnInfo(name = "createdBy", index = true)
-    public int createdBy;
-
-    @ColumnInfo(name = "status")
-    public String status;
-
-    @ColumnInfo(name = "totalBudget")
-    public double totalBudget; // Tổng ngân sách dự kiến
+    private String status;
+    private double totalBudget;
+    
+    // Audit fields (Lỗi 10)
+    private long createdAt;
+    private long updatedAt;
 
     public Event() {
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
-    public Event(String name, String description, String eventType, String startAt, String endAt, Integer locationId, int createdBy, String status, double totalBudget) {
-        this.name = name;
-        this.description = description;
-        this.eventType = eventType;
-        this.startAt = startAt;
-        this.endAt = endAt;
-        this.locationId = locationId;
-        this.createdBy = createdBy;
-        this.status = status;
-        this.totalBudget = totalBudget;
-    }
+    // Getters and Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public String getEventType() { return eventType; }
+    public void setEventType(String eventType) { this.eventType = eventType; }
+    public String getStartAt() { return startAt; }
+    public void setStartAt(String startAt) { this.startAt = startAt; }
+    public String getEndAt() { return endAt; }
+    public void setEndAt(String endAt) { this.endAt = endAt; }
+    public Integer getLocationId() { return locationId; }
+    public void setLocationId(Integer locationId) { this.locationId = locationId; }
+    public Integer getCreatedBy() { return createdBy; }
+    public void setCreatedBy(Integer createdBy) { this.createdBy = createdBy; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public double getTotalBudget() { return totalBudget; }
+    public void setTotalBudget(double totalBudget) { this.totalBudget = totalBudget; }
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public long getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 }

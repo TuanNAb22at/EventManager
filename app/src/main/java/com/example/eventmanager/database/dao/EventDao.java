@@ -6,13 +6,13 @@ import java.util.List;
 
 @Dao
 public interface EventDao {
-    @Query("SELECT * FROM events")
+    @Query("SELECT * FROM event")
     List<Event> getAllEvents();
 
-    @Query("SELECT * FROM events WHERE createdBy = :userId")
+    @Query("SELECT * FROM event WHERE createdBy = :userId")
     List<Event> getEventsByUserId(int userId);
 
-    @Query("SELECT * FROM events WHERE id = :id")
+    @Query("SELECT * FROM event WHERE id = :id")
     Event getEventById(int id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

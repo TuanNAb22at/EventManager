@@ -6,6 +6,7 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(
+    tableName = "feedback",
     foreignKeys = {
         @ForeignKey(
             entity = Event.class,
@@ -17,37 +18,35 @@ import androidx.room.PrimaryKey;
             entity = User.class,
             parentColumns = "id",
             childColumns = "userId",
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.SET_NULL
         )
     }
 )
 public class Feedback {
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    public int id;
+    private int id;
 
-    @ColumnInfo(name = "eventId", index = true)
-    public int eventId;
+    @ColumnInfo(index = true)
+    private int eventId;
 
-    @ColumnInfo(name = "userId", index = true)
-    public int userId;
+    @ColumnInfo(index = true)
+    private Integer userId; // Có thể null nếu khách không đăng nhập (Lỗi 6)
 
-    @ColumnInfo(name = "rating")
-    public int rating; // 1-5 stars
+    private int rating;
+    private String comments;
+    private String dateSubmitted;
+    
+    // Audit fields (Lỗi 10)
+    private long createdAt;
+    private long updatedAt;
 
-    @ColumnInfo(name = "comments")
-    public String comments;
-
-    @ColumnInfo(name = "dateSubmitted")
-    public String dateSubmitted;
-
-    // Empty constructor for Room
     public Feedback() {
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
-    // Full constructor
-    public Feedback(int id, int eventId, int userId, int rating, String comments, String dateSubmitted) {
-        this.id = id;
+    public Feedback(int eventId, Integer userId, int rating, String comments, String dateSubmitted) {
+        this();
         this.eventId = eventId;
         this.userId = userId;
         this.rating = rating;
@@ -55,12 +54,21 @@ public class Feedback {
         this.dateSubmitted = dateSubmitted;
     }
 
-    // Constructor without id (for insert)
-    public Feedback(int eventId, int userId, int rating, String comments, String dateSubmitted) {
-        this.eventId = eventId;
-        this.userId = userId;
-        this.rating = rating;
-        this.comments = comments;
-        this.dateSubmitted = dateSubmitted;
-    }
+    // Getters and Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public int getEventId() { return eventId; }
+    public void setEventId(int eventId) { this.eventId = eventId; }
+    public Integer getUserId() { return userId; }
+    public void setUserId(Integer userId) { this.userId = userId; }
+    public int getRating() { return rating; }
+    public void setRating(int rating) { this.rating = rating; }
+    public String getComments() { return comments; }
+    public void setComments(String comments) { this.comments = comments; }
+    public String getDateSubmitted() { return dateSubmitted; }
+    public void setDateSubmitted(String dateSubmitted) { this.dateSubmitted = dateSubmitted; }
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public long getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 }

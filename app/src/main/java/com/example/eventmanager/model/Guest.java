@@ -6,6 +6,7 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 @Entity(
+    tableName = "guest",
     foreignKeys = @ForeignKey(
         entity = Event.class,
         parentColumns = "id",
@@ -15,44 +16,40 @@ import androidx.room.PrimaryKey;
 )
 public class Guest {
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    public int id;
+    private int id;
 
-    @ColumnInfo(name = "eventId", index = true)
-    public int eventId;
+    @ColumnInfo(index = true)
+    private int eventId;
 
-    @ColumnInfo(name = "name")
-    public String name;
+    private String name;
+    private String email;
+    private String phone;
+    private String status;
+    
+    // Audit fields (Lỗi 10)
+    private long createdAt;
+    private long updatedAt;
 
-    @ColumnInfo(name = "email")
-    public String email;
-
-    @ColumnInfo(name = "phone")
-    public String phone;
-
-    @ColumnInfo(name = "status")
-    public String status;
-
-    // Empty constructor for Room
     public Guest() {
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
-    // Full constructor
-    public Guest(int id, int eventId, String name, String email, String phone, String status) {
-        this.id = id;
-        this.eventId = eventId;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.status = status;
-    }
-
-    // Constructor without id (for insert)
-    public Guest(int eventId, String name, String email, String phone, String status) {
-        this.eventId = eventId;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.status = status;
-    }
+    // Getters and Setters (Lỗi 9)
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public int getEventId() { return eventId; }
+    public void setEventId(int eventId) { this.eventId = eventId; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public long getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 }

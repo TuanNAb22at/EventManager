@@ -1,13 +1,14 @@
 package com.example.eventmanager.model;
 
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "roles")
+@Entity(tableName = "role", indices = {@Index(value = {"roleName"}, unique = true)})
 public class Role {
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private String roleName; // ORGANIZER, VENDOR, STAFF, etc.
+    private String roleName; // ORGANIZER, STAFF, etc.
 
     public Role(String roleName) {
         this.roleName = roleName;

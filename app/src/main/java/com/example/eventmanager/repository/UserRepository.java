@@ -1,44 +1,55 @@
 package com.example.eventmanager.repository;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import com.example.eventmanager.database.dao.UserDao;
 import com.example.eventmanager.model.User;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class UserRepository {
     private final UserDao userDao;
+    private final ExecutorService executorService;
 
     public UserRepository(UserDao userDao) {
         this.userDao = userDao;
+        this.executorService = Executors.newSingleThreadExecutor();
     }
 
-    public List<User> getAllUsers() {
-        return userDao.getAllUsers();
+    public LiveData<List<User>> getAllUsers() {
+        MutableLiveData<List<User>> data = new MutableLiveData<>();
+        executorService.execute(() -> data.postValue(userDao.getAllUsers()));
+        return data;
     }
 
-    public User getUserById(int id) {
-        return userDao.getUserById(id);
+    public LiveData<User> getUserById(int id) {
+        MutableLiveData<User> data = new MutableLiveData<>();
+        executorService.execute(() -> data.postValue(userDao.getUserById(id)));
+        return data;
     }
 
-    // Xóa phương thức lỗi và thay bằng phương thức lấy User theo Username
-    // Việc kiểm tra mật khẩu sẽ thực hiện ở Service/Activity bằng PasswordUtils
-    public User getUserByUsername(String username) {
-        return userDao.getUserByUsername(username);
+    public LiveData<User> getUserByUsername(String username) {
+        MutableLiveData<User> data = new MutableLiveData<>();
+        executorService.execute(() -> data.postValue(userDao.getUserByUsername(username)));
+        return data;
     }
 
-    // Thêm phương thức hỗ trợ Role-Based Access Control
-    public User getUserByUsernameAndRole(String username, String role) {
-        return userDao.getUserByUsernameAndRole(username, role);
+    public LiveData<User> getUserByUsernameAndRole(String username, String role) {
+        MutableLiveData<User> data = new MutableLiveData<>();
+        executorService.execute(() -> data.postValue(userDao.getUserByUsernameAndRole(username, role)));
+        return data;
     }
 
     public void insert(User user) {
-        userDao.insertUser(user);
+        executorService.execute(() -> userDao.insertUser(user));
     }
 
     public void update(User user) {
-        userDao.updateUser(user);
+        executorService.execute(() -> userDao.updateUser(user));
     }
 
     public void delete(User user) {
-        userDao.deleteUser(user);
+        executorService.execute(() -> userDao.deleteUser(user));
     }
 }

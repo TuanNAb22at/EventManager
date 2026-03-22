@@ -2,49 +2,54 @@ package com.example.eventmanager.model;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity
+@Entity(
+    tableName = "location",
+    foreignKeys = @ForeignKey(
+        entity = User.class,
+        parentColumns = "id",
+        childColumns = "createdBy",
+        onDelete = ForeignKey.SET_NULL
+    )
+)
 public class Location {
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    public int id;
+    private int id;
+    private String name;
+    private String address;
+    private String contact;
+    private double latitude;
+    private double longitude;
 
-    @ColumnInfo(name = "name")
-    public String name;
+    @ColumnInfo(index = true)
+    private Integer createdBy; // Thêm createdBy (Lỗi 3)
 
-    @ColumnInfo(name = "address")
-    public String address;
+    private long createdAt; // Audit fields (Lỗi 10)
+    private long updatedAt;
 
-    @ColumnInfo(name = "contact")
-    public String contact;
-
-    @ColumnInfo(name = "latitude")
-    public double latitude;
-
-    @ColumnInfo(name = "longitude")
-    public double longitude;
-
-    // Empty constructor for Room
     public Location() {
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
-    // Full constructor
-    public Location(int id, String name, String address, String contact, double latitude, double longitude) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.contact = contact;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
-    // Constructor without id (for insert)
-    public Location(String name, String address, String contact, double latitude, double longitude) {
-        this.name = name;
-        this.address = address;
-        this.contact = contact;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
+    public String getContact() { return contact; }
+    public void setContact(String contact) { this.contact = contact; }
+    public double getLatitude() { return latitude; }
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+    public double getLongitude() { return longitude; }
+    public void setLongitude(double longitude) { this.longitude = longitude; }
+    public Integer getCreatedBy() { return createdBy; }
+    public void setCreatedBy(Integer createdBy) { this.createdBy = createdBy; }
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public long getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 }

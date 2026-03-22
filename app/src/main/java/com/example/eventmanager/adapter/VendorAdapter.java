@@ -42,13 +42,13 @@ public class VendorAdapter extends RecyclerView.Adapter<VendorAdapter.VendorView
     public void onBindViewHolder(@NonNull VendorViewHolder holder, int position) {
         Vendor vendor = vendors.get(position);
         
-        holder.tvSupplierName.setText(vendor.name);
-        holder.tvPhone.setText(vendor.phone);
-        holder.tvEmail.setText(vendor.email);
-        holder.tvCategory.setText(vendor.serviceType);
+        holder.tvSupplierName.setText(vendor.getName());
+        holder.tvPhone.setText(vendor.getPhone());
+        holder.tvEmail.setText(vendor.getEmail());
+        holder.tvCategory.setText(vendor.getServiceType());
         
         // Ghi chú - Tạm thời hiển thị service type nếu không có field note
-        holder.tvNote.setText("Dịch vụ: " + vendor.serviceType);
+        holder.tvNote.setText("Dịch vụ: " + vendor.getServiceType());
 
         holder.btnEdit.setOnClickListener(v -> actionListener.onEdit(vendor));
         holder.btnDelete.setOnClickListener(v -> actionListener.onDelete(vendor));

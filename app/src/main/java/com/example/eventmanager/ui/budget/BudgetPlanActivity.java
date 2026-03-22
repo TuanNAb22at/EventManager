@@ -93,7 +93,7 @@ public class BudgetPlanActivity extends AppCompatActivity {
             AppDatabase db = AppDatabase.getInstance(this);
             Event event = db.eventDao().getEventById(eventId);
             if (event != null) {
-                event.totalBudget = newBudget;
+                event.setTotalBudget(newBudget);
                 db.eventDao().updateEvent(event);
                 totalBudget = newBudget;
                 loadBudgetData(); // Tải lại để cập nhật UI
@@ -108,7 +108,7 @@ public class BudgetPlanActivity extends AppCompatActivity {
             
             double spent = 0;
             for (Budget b : budgets) {
-                spent += b.amount;
+                spent += b.getAmount();
             }
             
             final double finalSpent = spent;

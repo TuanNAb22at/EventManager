@@ -11,6 +11,6 @@ public interface UserRoleDao {
     @Insert
     void insertUserRole(UserRole userRole);
 
-    @Query("SELECT roleId FROM user_roles WHERE userId = :userId")
+    @Query("SELECT roleId FROM user_role WHERE userId = :userId")
     List<Integer> getRolesForUser(int userId);
 }

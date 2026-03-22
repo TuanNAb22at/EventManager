@@ -136,9 +136,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void ensureRolesExist(AppDatabase db) {
-        if (db.roleDao().getRoleCount() == 0) {
-            db.roleDao().insertRole(new Role(SessionManager.ROLE_ORGANIZER));
-            db.roleDao().insertRole(new Role(SessionManager.ROLE_STAFF));
+        String[] roles = {SessionManager.ROLE_ORGANIZER, SessionManager.ROLE_STAFF};
+        for (String roleName : roles) {
+            if (db.roleDao().getRoleByName(roleName) == null) {
+                db.roleDao().insertRole(new Role(roleName));
+            }
         }
     }
 

@@ -37,9 +37,9 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.Feedba
     @Override
     public void onBindViewHolder(@NonNull FeedbackViewHolder holder, int position) {
         Feedback feedback = feedbacks.get(position);
-        holder.ratingBar.setRating(feedback.rating);
-        holder.commentsTextView.setText(feedback.comments);
-        holder.dateTextView.setText(feedback.dateSubmitted);
+        holder.ratingBar.setRating(feedback.getRating());
+        holder.commentsTextView.setText(feedback.getComments());
+        holder.dateTextView.setText(feedback.getDateSubmitted());
         holder.itemView.setOnClickListener(v -> onItemClick.onItemClick(feedback));
     }
 
