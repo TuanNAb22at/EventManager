@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/primary_blue">
 
-    <!-- PHẦN HEADER CỐ ĐỊNH -->
+    <!-- PHẦN HEADER CỐ ĐỊNH - KHÔNG BAO GIỜ DI CHUYỂN -->
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
@@ -33,7 +33,7 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sự kiện Ngân sách"
+                android:text="Sự kiện của tôi"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -62,7 +62,7 @@
                 app:tint="@color/white" />
 
             <EditText
-                android:id="@+id/etSearchEvent"
+                android:id="@+id/etSearch"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="12dp"
@@ -89,7 +89,7 @@
             tools:listitem="@layout/item_filter_chip" />
     </LinearLayout>
 
-    <!-- PHẦN DANH SÁCH -->
+    <!-- PHẦN NỘI DUNG CUỘN (TABS + LIST) -->
     <LinearLayout
         android:id="@+id/contentLayout"
         android:layout_width="match_parent"
@@ -100,8 +100,28 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerLayout">
 
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:tabIndicatorColor="@color/primary_blue"
+            app:tabSelectedTextColor="@color/primary_blue"
+            app:tabTextColor="@color/gray_text">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SẮP TỚI" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ĐÃ QUA" />
+        </com.google.android.material.tabs.TabLayout>
+
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvEvents"
+            android:id="@+id/rvMyEvents"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"

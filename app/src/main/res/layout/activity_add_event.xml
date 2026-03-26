@@ -42,43 +42,57 @@
             android:padding="20dp">
 
             <!-- Upload Section -->
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:background="@drawable/bg_upload_dotted"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:layout_height="200dp"
+                android:background="@drawable/bg_upload_dotted">
 
                 <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_add_photo"
-                    app:tint="@color/primary_blue" />
+                    android:id="@+id/ivBannerPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Tải lên ảnh bìa"
-                    android:textColor="@color/black"
-                    android:textStyle="bold" />
+                <LinearLayout
+                    android:id="@+id/uploadPlaceholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tỉ lệ đề xuất 16:9"
-                    android:textColor="@color/gray_text"
-                    android:textSize="12sp" />
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_add_photo"
+                        app:tint="@color/primary_blue" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/primary_blue"
-                    android:text="Chọn ảnh"
-                    android:textAllCaps="false"
-                    app:cornerRadius="20dp" />
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Tải lên ảnh bìa"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tỉ lệ đề xuất 16:9"
+                        android:textColor="@color/gray_text"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChooseImage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:backgroundTint="@color/primary_blue"
+                        android:text="Chọn ảnh"
+                        android:textAllCaps="false"
+                        app:cornerRadius="20dp" />
+                </LinearLayout>
+            </FrameLayout>
 
             <!-- Event Name -->
             <TextView
@@ -98,6 +112,35 @@
                 android:hint="Tên sự kiện của bạn là gì?"
                 android:paddingHorizontal="16dp"
                 android:textSize="14sp" />
+
+            <!-- Event Type -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Loại sự kiện *"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:hintEnabled="false"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/actvEventType"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="Chọn loại sự kiện..."
+                    android:inputType="none"
+                    android:paddingHorizontal="16dp"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Date -->
             <TextView
@@ -212,6 +255,7 @@
                     android:textSize="14sp" />
 
                 <ImageButton
+                    android:id="@+id/btnOpenMap"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_marginStart="12dp"
@@ -221,96 +265,32 @@
                     app:tint="@color/primary_blue" />
             </LinearLayout>
 
-            <!-- Supplier -->
+            <!-- Total Guests -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Nhà cung cấp *"
+                android:text="Số lượng khách"
                 android:textColor="@color/black"
                 android:textStyle="bold" />
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/etTotalGuests"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tvSelectSupplier"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_input_field"
-                    android:drawableEnd="@drawable/ic_arrow_down"
-                    android:gravity="center_vertical"
-                    android:hint="Chọn nhà cung cấp"
-                    android:paddingHorizontal="16dp"
-                    android:textSize="14sp" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    app:fabSize="mini"
-                    android:src="@drawable/ic_add"
-                    app:backgroundTint="@color/primary_blue"
-                    app:tint="@color/white" />
-            </LinearLayout>
-
-            <!-- Tasks Checklist -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Danh sách công việc *"
-                android:textColor="@color/black"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_input_field"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="16dp">
-
-                    <CheckBox
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <EditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:hint="Thêm công việc"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    app:fabSize="mini"
-                    android:src="@drawable/ic_add"
-                    app:backgroundTint="@color/primary_blue"
-                    app:tint="@color/white" />
-            </LinearLayout>
+                android:background="@drawable/bg_input_field"
+                android:hint="Số lượng khách dự kiến"
+                android:inputType="number"
+                android:paddingHorizontal="16dp"
+                android:textSize="14sp" />
 
             <!-- Description -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Mô tả *"
+                android:text="Mô tả sự kiện"
                 android:textColor="@color/black"
                 android:textStyle="bold" />
 
@@ -321,7 +301,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_input_field"
                 android:gravity="top"
-                android:hint="Kể thêm cho mọi người về sự kiện của bạn..."
+                android:hint="Kể thêm về sự kiện của bạn..."
                 android:padding="16dp"
                 android:textSize="14sp" />
 
@@ -334,10 +314,9 @@
         android:layout_height="56dp"
         android:layout_gravity="bottom"
         android:layout_margin="20dp"
-        android:text="THÊM SỰ KIỆN"
+        android:text="TẠO SỰ KIỆN"
         android:textSize="16sp"
         android:textStyle="bold"
         app:cornerRadius="28dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-

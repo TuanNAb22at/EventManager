@@ -26,11 +26,13 @@
         <activity android:name=".ui.main.MainActivity" />
         <activity android:name=".ui.profile.ProfileActivity" />
         <activity android:name=".ui.vendor.AddVendorActivity" />
+        <activity android:name=".ui.vendor.EditVendorActivity" />
         <activity android:name=".ui.vendor.VendorListActivity" />
         <activity android:name=".ui.event.AddEventActivity" />
         <activity android:name=".ui.event.EditEventActivity" />
         <activity android:name=".ui.event.EventListActivity" />
         <activity android:name=".ui.event.EventDetailActivity" />
+        <activity android:name=".ui.event.MyEventActivity" />
         <activity android:name=".ui.guest.AddGuestActivity" />
         <activity android:name=".ui.guest.GuestListActivity" />
         <activity android:name=".ui.budget.AddBudgetActivity" />

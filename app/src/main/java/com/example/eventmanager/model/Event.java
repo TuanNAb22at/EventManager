@@ -18,7 +18,7 @@ import androidx.room.PrimaryKey;
             entity = User.class,
             parentColumns = "id",
             childColumns = "createdBy",
-            onDelete = ForeignKey.SET_NULL // Sửa lỗi 2: Không xóa event khi xóa user
+            onDelete = ForeignKey.SET_NULL
         )
     }
 )
@@ -30,23 +30,25 @@ public class Event {
     private String eventType;
     private String startAt;
     private String endAt;
+    private String bannerUri; // Đường dẫn ảnh bìa sự kiện
     
     @ColumnInfo(index = true)
     private Integer locationId;
     
     @ColumnInfo(index = true)
-    private Integer createdBy; // Chuyển sang Integer để có thể NULL (SET_NULL)
+    private Integer createdBy;
 
     private String status;
     private double totalBudget;
+    private int totalGuests;
     
-    // Audit fields (Lỗi 10)
     private long createdAt;
     private long updatedAt;
 
     public Event() {
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
+        this.status = "Đang lên kế hoạch";
     }
 
     // Getters and Setters
@@ -62,6 +64,8 @@ public class Event {
     public void setStartAt(String startAt) { this.startAt = startAt; }
     public String getEndAt() { return endAt; }
     public void setEndAt(String endAt) { this.endAt = endAt; }
+    public String getBannerUri() { return bannerUri; }
+    public void setBannerUri(String bannerUri) { this.bannerUri = bannerUri; }
     public Integer getLocationId() { return locationId; }
     public void setLocationId(Integer locationId) { this.locationId = locationId; }
     public Integer getCreatedBy() { return createdBy; }
@@ -70,6 +74,8 @@ public class Event {
     public void setStatus(String status) { this.status = status; }
     public double getTotalBudget() { return totalBudget; }
     public void setTotalBudget(double totalBudget) { this.totalBudget = totalBudget; }
+    public int getTotalGuests() { return totalGuests; }
+    public void setTotalGuests(int totalGuests) { this.totalGuests = totalGuests; }
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
     public long getUpdatedAt() { return updatedAt; }

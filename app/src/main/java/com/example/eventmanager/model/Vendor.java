@@ -23,7 +23,8 @@ public class Vendor {
     private String phone;
     private String email;
     private String serviceType;
-    
+    private String note;
+
     @ColumnInfo(index = true)
     private Integer createdBy;
     
@@ -45,6 +46,8 @@ public class Vendor {
     public void setEmail(String email) { this.email = email; }
     public String getServiceType() { return serviceType; }
     public void setServiceType(String serviceType) { this.serviceType = serviceType; }
+    public String getNote() { return note; }
+    public void setNote(String note) { this.note = note; }
     public Integer getCreatedBy() { return createdBy; }
     public void setCreatedBy(Integer createdBy) { this.createdBy = createdBy; }
     public long getCreatedAt() { return createdAt; }
