@@ -33,7 +33,7 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sự kiện Ngân sách"
+                android:text="Ngân sách cho sự kiện"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -120,5 +120,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerLayout" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddBudget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add"
+        app:backgroundTint="@color/primary_blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,18 +2,23 @@ package com.example.eventmanager.ui.budget;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
-import android.widget.EditText;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.example.eventmanager.R;
 import com.example.eventmanager.adapter.BudgetPlanAdapter;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityBudgetPlanBinding;
 import com.example.eventmanager.model.Budget;
 import com.example.eventmanager.model.Event;
+import com.google.android.material.textfield.TextInputEditText;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +33,7 @@ public class BudgetPlanActivity extends AppCompatActivity {
     private String eventName;
     private double totalBudget;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,41 +57,70 @@ public class BudgetPlanActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Cho phép chỉnh sửa tổng ngân sách khi nhấn vào số tiền
         binding.tvTotalBudget.setOnClickListener(v -> showEditBudgetDialog());
     }
 
     private void setupRecyclerView() {
         adapter = new BudgetPlanAdapter(new ArrayList<>(), budget -> {
-            // Xem chi tiết hoặc xóa nếu cần
+            // Chỉnh sửa chi phí khi nhấn vào item
+            Intent intent = new Intent(this, AddBudgetItemActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            intent.putExtra("BUDGET_ID", budget.getId());
+            startActivity(intent);
         });
         binding.rvBudgets.setLayoutManager(new LinearLayoutManager(this));
         binding.rvBudgets.setAdapter(adapter);
     }
 
     private void showEditBudgetDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Chỉnh sửa tổng ngân sách");
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_budget, null);
+        TextInputEditText etBudget = dialogView.findViewById(R.id.etBudgetAmount);
 
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        input.setText(String.valueOf((long)totalBudget));
-        builder.setView(input);
+        etBudget.setText(decimalFormat.format(totalBudget));
 
-        builder.setPositiveButton("Cập nhật", (dialog, which) -> {
-            String newBudgetStr = input.getText().toString();
-            if (!newBudgetStr.isEmpty()) {
-                try {
-                    double newBudget = Double.parseDouble(newBudgetStr);
-                    updateTotalBudget(newBudget);
-                } catch (NumberFormatException e) {
-                    Toast.makeText(this, "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show();
+        etBudget.addTextChangedListener(new TextWatcher() {
+            private String current = "";
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().equals(current)) {
+                    etBudget.removeTextChangedListener(this);
+
+                    String cleanString = s.toString().replaceAll("[^\\d]", "");
+                    if (!cleanString.isEmpty()) {
+                        double parsed = Double.parseDouble(cleanString);
+                        String formatted = decimalFormat.format(parsed);
+                        current = formatted;
+                        etBudget.setText(formatted);
+                        etBudget.setSelection(formatted.length());
+                    } else {
+                        current = "";
+                        etBudget.setText("");
+                    }
+
+                    etBudget.addTextChangedListener(this);
                 }
             }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
-        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
 
-        builder.show();
+        new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setPositiveButton("Cập nhật", (dialog, which) -> {
+                    String cleanString = etBudget.getText().toString().replaceAll("[^\\d]", "");
+                    if (!cleanString.isEmpty()) {
+                        try {
+                            double newBudget = Double.parseDouble(cleanString);
+                            updateTotalBudget(newBudget);
+                        } catch (NumberFormatException e) {
+                            Toast.makeText(this, "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
     }
 
     private void updateTotalBudget(double newBudget) {
@@ -96,7 +131,7 @@ public class BudgetPlanActivity extends AppCompatActivity {
                 event.setTotalBudget(newBudget);
                 db.eventDao().updateEvent(event);
                 totalBudget = newBudget;
-                loadBudgetData(); // Tải lại để cập nhật UI
+                loadBudgetData();
             }
         });
     }
