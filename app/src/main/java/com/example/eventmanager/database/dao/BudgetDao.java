@@ -15,6 +15,9 @@ public interface BudgetDao {
     @Query("SELECT * FROM budget WHERE id = :id")
     Budget getBudgetById(int id);
 
+    @Query("SELECT * FROM budget WHERE id = :id")
+    Budget getBudgetByIdSync(int id);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertBudget(Budget budget);
 

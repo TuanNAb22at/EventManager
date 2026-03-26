@@ -43,6 +43,11 @@ public class BudgetEventActivity extends AppCompatActivity {
         setupRecyclerView();
         observeEvents();
         observeEventTypes();
+
+        binding.fabAddBudget.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SelectEventBudgetActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void setupToolbar() {
@@ -127,6 +132,10 @@ public class BudgetEventActivity extends AppCompatActivity {
     private void filterAndDisplayEvents() {
         List<Event> filteredList = allEvents.stream()
             .filter(event -> {
+                // Chỉ hiện những sự kiện ĐÃ có ngân sách (> 0)
+                boolean hasBudget = event.getTotalBudget() > 0;
+                if (!hasBudget) return false;
+
                 // Lọc theo tên
                 boolean matchesSearch = event.getName().toLowerCase().contains(currentSearchQuery);
                 

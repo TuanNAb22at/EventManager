@@ -21,6 +21,7 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/tvToolbarTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -28,6 +29,18 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnDeleteExpense"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="8dp"
+            android:text="Xóa"
+            android:textColor="#F44336"
+            android:textSize="16sp"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <ScrollView
@@ -49,14 +62,24 @@
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/etTitle"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/bg_edittext"
-                android:hint="Nhập tên khoản chi..."
-                android:padding="16dp" />
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:startIconDrawable="@drawable/ic_edit">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nhập tên khoản chi..."
+                    android:padding="16dp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -67,15 +90,25 @@
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/etAmount"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/bg_edittext"
-                android:hint="₫ 0"
-                android:inputType="numberDecimal"
-                android:padding="16dp" />
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:startIconDrawable="@drawable/ic_budget">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="₫ 0"
+                    android:inputType="numberDecimal"
+                    android:padding="16dp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -105,7 +138,8 @@
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusTopStart="12dp">
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:startIconDrawable="@drawable/ic_category">
 
                         <AutoCompleteTextView
                             android:id="@+id/actvCategory"
@@ -134,16 +168,26 @@
                         android:textSize="12sp"
                         android:textStyle="bold" />
 
-                    <EditText
-                        android:id="@+id/etDate"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:background="@drawable/bg_edittext"
-                        android:clickable="true"
-                        android:focusable="false"
-                        android:hint="Chọn ngày"
-                        android:padding="16dp" />
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:startIconDrawable="@drawable/ic_calendar">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:hint="Chọn ngày"
+                            android:padding="16dp" />
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </LinearLayout>
 
