@@ -125,9 +125,9 @@
 
                     <TextView
                         android:id="@+id/btnFilter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
+                        android:layout_width="60dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
                         android:text="Lọc"
                         android:textColor="@color/white"
                         android:textStyle="bold"
@@ -143,7 +143,7 @@
                     android:layout_marginTop="16dp"
                     android:clipToPadding="false"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="16dp"
+                    android:paddingHorizontal="24dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintTop_toBottomOf="@id/searchBar"
                     tools:listitem="@layout/item_filter_chip" />

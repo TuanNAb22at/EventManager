@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/primary_blue">
 
-    <!-- PHẦN HEADER CỐ ĐỊNH - KHÔNG BAO GIỜ DI CHUYỂN -->
+    <!-- PHẦN HEADER CỐ ĐỊNH -->
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
@@ -66,7 +66,6 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="12dp"
-                android:layout_marginEnd="16dp"
                 android:background="@null"
                 android:hint="Tìm kiếm sự kiện..."
                 android:imeOptions="actionSearch"
@@ -74,8 +73,30 @@
                 android:textColor="@color/white"
                 android:textColorHint="#CCFFFFFF"
                 android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/divider"
                 app:layout_constraintStart_toEndOf="@id/ivSearch" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="1dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:background="#33FFFFFF"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnFilter"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/btnFilter"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="Lọc"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -85,6 +106,7 @@
             android:layout_marginTop="16dp"
             android:clipToPadding="false"
             android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_filter_chip" />
     </LinearLayout>

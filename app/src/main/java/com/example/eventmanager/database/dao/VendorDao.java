@@ -15,6 +15,9 @@ public interface VendorDao {
     @Query("SELECT * FROM vendor WHERE id = :id")
     Vendor getVendorById(int id);
 
+    @Query("SELECT v.* FROM vendor v INNER JOIN event_vendor ev ON v.id = ev.vendorId WHERE ev.eventId = :eventId")
+    List<Vendor> getVendorsByEventIdSync(int eventId);
+
     @Query("SELECT DISTINCT serviceType FROM vendor WHERE serviceType IS NOT NULL AND serviceType != ''")
     List<String> getDistinctServiceTypes();
 

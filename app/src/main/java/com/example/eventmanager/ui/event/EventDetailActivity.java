@@ -106,6 +106,13 @@ public class EventDetailActivity extends AppCompatActivity {
             // Intent sang TaskListActivity
         });
 
+        binding.btnSupplier.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EventVendorListActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            intent.putExtra("EVENT_NAME", currentEvent != null ? currentEvent.getName() : "");
+            startActivity(intent);
+        });
+
         binding.btnDelete.setOnClickListener(v -> showDeleteConfirmDialog());
     }
 

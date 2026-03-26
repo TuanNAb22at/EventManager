@@ -12,9 +12,9 @@ import androidx.room.PrimaryKey;
         entity = User.class,
         parentColumns = "id",
         childColumns = "createdBy",
-        onDelete = ForeignKey.SET_NULL // Sửa lỗi 4: Tránh xóa vendor khi user bị xóa
+        onDelete = ForeignKey.SET_NULL
     ),
-    indices = {@Index(value = {"email"}, unique = true)}
+    indices = {@Index(value = {"email"})} // Xóa unique = true để tránh REPLACE khi trùng email
 )
 public class Vendor {
     @PrimaryKey(autoGenerate = true)

@@ -10,13 +10,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.example.eventmanager.R;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityEditEventBinding;
 import com.example.eventmanager.model.Event;
+import com.example.eventmanager.model.Location;
+import com.example.eventmanager.utils.SessionManager;
+import com.example.eventmanager.viewmodel.EventViewModel;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,18 +36,10 @@ public class EditEventActivity extends AppCompatActivity {
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
     private final SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.getDefault());
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private EventViewModel eventViewModel;
+    private SessionManager sessionManager;
     private String selectedBannerUri = null;
     private static final int PICK_IMAGE_REQUEST = 1;
-
-    private static final String[] EVENT_TYPES = {
-            "Đám cưới (Wedding)",
-            "Sinh nhật (Birthday)",
-            "Hội nghị/Sự kiện doanh nghiệp",
-            "Lễ kỷ niệm",
-            "Tiệc tối (Gala Dinner)",
-            "Buổi hòa nhạc/Show diễn",
-            "Khác"
-    };
 
     private static final String[] STATUS_OPTIONS = {
             "Đang lên kế hoạch",
@@ -62,10 +60,14 @@ public class EditEventActivity extends AppCompatActivity {
             return;
         }
 
+        sessionManager = new SessionManager(this);
+        eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
+
         setupToolbar();
         setupDateTimePickers();
         setupImagePicker();
         setupSpinners();
+        observeEventTypes();
         loadEventData();
 
         binding.btnUpdateEvent.setOnClickListener(v -> updateEvent());
@@ -76,13 +78,33 @@ public class EditEventActivity extends AppCompatActivity {
     }
 
     private void setupSpinners() {
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, EVENT_TYPES);
-        binding.actvEventType.setAdapter(typeAdapter);
-        binding.actvEventType.setOnClickListener(v -> binding.actvEventType.showDropDown());
-
         ArrayAdapter<String> statusAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, STATUS_OPTIONS);
         binding.actvStatus.setAdapter(statusAdapter);
         binding.actvStatus.setOnClickListener(v -> binding.actvStatus.showDropDown());
+    }
+
+    private void observeEventTypes() {
+        eventViewModel.getAllEventTypes().observe(this, types -> {
+            List<String> eventTypes = new ArrayList<>();
+            if (types != null && !types.isEmpty()) {
+                eventTypes.addAll(types);
+            } else {
+                eventTypes.add("Đám cưới");
+                eventTypes.add("Sinh nhật");
+                eventTypes.add("Hội nghị");
+                eventTypes.add("Lễ kỷ niệm");
+                eventTypes.add("Tiệc tối");
+                eventTypes.add("Buổi hòa nhạc");
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    this,
+                    android.R.layout.simple_dropdown_item_1line,
+                    eventTypes
+            );
+            binding.actvEventType.setAdapter(adapter);
+            binding.actvEventType.setOnClickListener(v -> binding.actvEventType.showDropDown());
+        });
     }
 
     private void setupImagePicker() {
@@ -158,6 +180,7 @@ public class EditEventActivity extends AppCompatActivity {
         binding.actvEventType.setText(event.getEventType(), false);
         binding.actvStatus.setText(event.getStatus(), false);
         binding.etDescription.setText(event.getDescription());
+        // binding.etTotalGuests.setText(String.valueOf(event.getTotalGuests()));
 
         if (event.getStartAt() != null && event.getStartAt().contains(" ")) {
             String[] parts = event.getStartAt().split(" ");
@@ -175,6 +198,16 @@ public class EditEventActivity extends AppCompatActivity {
             binding.uploadPlaceholder.setVisibility(View.GONE);
             binding.ivBannerPreview.setVisibility(View.VISIBLE);
         }
+
+        // Load location name
+        if (event.getLocationId() != null) {
+            executorService.execute(() -> {
+                Location location = AppDatabase.getInstance(this).locationDao().getLocationById(event.getLocationId());
+                if (location != null) {
+                    runOnUiThread(() -> binding.etLocation.setText(location.getName()));
+                }
+            });
+        }
     }
 
     private void updateEvent() {
@@ -184,6 +217,8 @@ public class EditEventActivity extends AppCompatActivity {
         String date = binding.tvSelectDate.getText().toString().trim();
         String startTime = binding.tvStartTime.getText().toString().trim();
         String endTime = binding.tvEndTime.getText().toString().trim();
+        String locationName = binding.etLocation.getText().toString().trim();
+        // String guestsStr = binding.etTotalGuests.getText().toString().trim();
         String description = binding.etDescription.getText().toString().trim();
 
         if (name.isEmpty() || eventType.isEmpty() || date.isEmpty()) {
@@ -191,17 +226,51 @@ public class EditEventActivity extends AppCompatActivity {
             return;
         }
 
+        int totalGuests = currentEvent != null ? currentEvent.getTotalGuests() : 0;
+        /*
+        if (!guestsStr.isEmpty()) {
+            try {
+                totalGuests = Integer.parseInt(guestsStr);
+            } catch (NumberFormatException ignored) {}
+        }
+        */
+        final int finalTotalGuests = totalGuests;
+
         executorService.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            int userId = sessionManager.getUserId();
+
+            // Handle location update
+            Integer locationId = currentEvent.getLocationId();
+            if (!locationName.isEmpty()) {
+                if (locationId == null) {
+                    Location loc = new Location();
+                    loc.setName(locationName);
+                    loc.setAddress(locationName);
+                    loc.setCreatedBy(userId);
+                    locationId = (int) db.locationDao().insertLocation(loc);
+                } else {
+                    Location loc = db.locationDao().getLocationById(locationId);
+                    if (loc != null) {
+                        loc.setName(locationName);
+                        loc.setAddress(locationName);
+                        db.locationDao().updateLocation(loc);
+                    }
+                }
+            }
+
             currentEvent.setName(name);
             currentEvent.setEventType(eventType);
             currentEvent.setStatus(status);
             currentEvent.setStartAt(date + " " + startTime);
             currentEvent.setEndAt(date + " " + endTime);
+            currentEvent.setLocationId(locationId);
+            currentEvent.setTotalGuests(finalTotalGuests);
             currentEvent.setDescription(description);
             currentEvent.setBannerUri(selectedBannerUri);
             currentEvent.setUpdatedAt(System.currentTimeMillis());
 
-            AppDatabase.getInstance(this).eventDao().updateEvent(currentEvent);
+            db.eventDao().updateEvent(currentEvent);
 
             runOnUiThread(() -> {
                 Toast.makeText(this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
