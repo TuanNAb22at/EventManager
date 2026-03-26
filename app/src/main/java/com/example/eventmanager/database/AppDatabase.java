@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
         Schedule.class, Feedback.class, Role.class, UserRole.class,
         EventVendor.class
     },
-    version = 16,
+    version = 18, // Tăng version từ 17 lên 18 để áp dụng thay đổi Index
     exportSchema = false
 )
 @TypeConverters(DateConverter.class)
@@ -39,6 +39,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract FeedbackDao feedbackDao();
     public abstract RoleDao roleDao();
     public abstract UserRoleDao userRoleDao();
+    public abstract EventVendorDao eventVendorDao();
 
     public static AppDatabase getInstance(Context context) {
         if (instance == null) {
@@ -50,7 +51,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             "event_manager_db"
                         )
                         .setJournalMode(JournalMode.TRUNCATE)
-                        .fallbackToDestructiveMigration() // Sử dụng Destructive Migration để giải quyết conflict nhanh
+                        .fallbackToDestructiveMigration()
                         .addCallback(new Callback() {
                             @Override
                             public void onCreate(@NonNull SupportSQLiteDatabase db) {

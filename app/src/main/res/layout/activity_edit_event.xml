@@ -141,37 +141,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="@drawable/bg_input_field"
-                    android:hint="Chọn loại sự kiện..."
-                    android:inputType="none"
-                    android:paddingHorizontal="16dp"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Status -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Trạng thái *"
-                android:textColor="@color/black"
-                android:textStyle="bold" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:hintEnabled="false"
-                app:boxStrokeWidth="0dp"
-                app:boxStrokeWidthFocused="0dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/actvStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:background="@drawable/bg_input_field"
-                    android:hint="Trạng thái sự kiện..."
-                    android:inputType="none"
+                    android:hint="Chọn hoặc nhập loại sự kiện..."
+                    android:inputType="text"
                     android:paddingHorizontal="16dp"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -260,6 +231,94 @@
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
+
+            <!-- Location -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Địa điểm *"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/etLocation"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_input_field"
+                    android:drawableEnd="@drawable/ic_location"
+                    android:hint="Nhập địa điểm hoặc sảnh..."
+                    android:paddingHorizontal="16dp"
+                    android:textSize="14sp" />
+
+                <ImageButton
+                    android:id="@+id/btnOpenMap"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_translucent"
+                    android:backgroundTint="#ECEFFF"
+                    android:src="@drawable/ic_map"
+                    app:tint="@color/primary_blue" />
+            </LinearLayout>
+
+            <!-- Total Guests
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Số lượng khách dự kiến"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etTotalGuests"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_input_field"
+                android:hint="Nhập số lượng khách..."
+                android:inputType="number"
+                android:paddingHorizontal="16dp"
+                android:textSize="14sp" />
+            -->
+
+            <!-- Status -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="Trạng thái *"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:hintEnabled="false"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/actvStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="Chọn trạng thái..."
+                    android:inputType="none"
+                    android:paddingHorizontal="16dp"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Description -->
             <TextView

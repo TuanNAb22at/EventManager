@@ -136,8 +136,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="@drawable/bg_input_field"
-                    android:hint="Chọn loại sự kiện..."
-                    android:inputType="none"
+                    android:hint="Chọn hoặc nhập loại sự kiện..."
+                    android:inputType="text"
                     android:paddingHorizontal="16dp"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -265,12 +265,12 @@
                     app:tint="@color/primary_blue" />
             </LinearLayout>
 
-            <!-- Total Guests -->
+            <!-- Total Guests
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Số lượng khách"
+                android:text="Số lượng khách dự kiến"
                 android:textColor="@color/black"
                 android:textStyle="bold" />
 
@@ -280,10 +280,11 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_input_field"
-                android:hint="Số lượng khách dự kiến"
+                android:hint="Nhập số lượng khách..."
                 android:inputType="number"
                 android:paddingHorizontal="16dp"
                 android:textSize="14sp" />
+            -->
 
             <!-- Description -->
             <TextView
