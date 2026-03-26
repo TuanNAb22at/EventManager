@@ -48,6 +48,7 @@
         <activity android:name=".ui.feedback.AddFeedbackActivity" />
         <activity android:name=".ui.feedback.FeedbackListActivity" />
         <activity android:name=".ui.location.LocationMapActivity" />
+        <activity android:name=".ui.location.VenueListActivity" />
         <activity android:name=".ui.event.EventVendorListActivity" />
         <activity android:name=".ui.event.SelectVendorActivity" />
 
