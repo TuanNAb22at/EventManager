@@ -1,7 +1,6 @@
 package com.example.eventmanager.repository;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import com.example.eventmanager.database.dao.EventDao;
 import com.example.eventmanager.model.Event;
 import java.util.List;
@@ -18,15 +17,11 @@ public class EventRepository {
     }
 
     public LiveData<List<Event>> getAllEvents() {
-        MutableLiveData<List<Event>> data = new MutableLiveData<>();
-        executorService.execute(() -> data.postValue(eventDao.getAllEvents()));
-        return data;
+        return eventDao.getAllEvents();
     }
 
     public LiveData<Event> getEventById(int id) {
-        MutableLiveData<Event> data = new MutableLiveData<>();
-        executorService.execute(() -> data.postValue(eventDao.getEventById(id)));
-        return data;
+        return eventDao.getEventById(id);
     }
 
     public void insert(Event event) {

@@ -3,6 +3,8 @@ package com.example.eventmanager.ui.main;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -13,21 +15,38 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.eventmanager.R;
+import com.example.eventmanager.adapter.FilterAdapter;
+import com.example.eventmanager.adapter.UpcomingEventAdapter;
 import com.example.eventmanager.databinding.ActivityMainBinding;
+import com.example.eventmanager.model.Event;
 import com.example.eventmanager.ui.auth.ChangePasswordActivity;
 import com.example.eventmanager.ui.auth.LoginActivity;
 import com.example.eventmanager.ui.budget.BudgetEventActivity;
 import com.example.eventmanager.ui.event.AddEventActivity;
+import com.example.eventmanager.ui.event.EventDetailActivity;
+import com.example.eventmanager.ui.event.MyEventActivity;
 import com.example.eventmanager.ui.profile.ProfileActivity;
 import com.example.eventmanager.ui.vendor.VendorListActivity;
 import com.example.eventmanager.utils.SessionManager;
+import com.example.eventmanager.viewmodel.EventViewModel;
 import com.google.android.material.snackbar.Snackbar;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private SessionManager sessionManager;
+    private EventViewModel eventViewModel;
+    private UpcomingEventAdapter adapter;
+    private FilterAdapter filterAdapter;
+    private List<Event> allEvents = new ArrayList<>();
+    private String currentSearchQuery = "";
+    private String selectedCategory = "Tất cả";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +63,101 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
+
         initUI();
+        setupSearch();
+        setupFilters();
+        setupRecyclerView();
         setupWindowInsets();
         setupDrawer();
         setupBottomNavigation();
         setupFab();
-        applyRolePermissions();
+        observeEvents();
+        observeEventTypes();
     }
 
     private void initUI() {
         Window window = getWindow();
         window.setStatusBarColor(Color.TRANSPARENT);
+    }
+
+    private void setupSearch() {
+        binding.etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString().toLowerCase().trim();
+                filterAndDisplayEvents();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void setupFilters() {
+        List<String> categories = new ArrayList<>();
+        categories.add("Tất cả");
+
+        filterAdapter = new FilterAdapter(categories, category -> {
+            selectedCategory = category;
+            filterAdapter.setSelectedFilter(category);
+            filterAndDisplayEvents();
+        });
+        filterAdapter.setSelectedFilter("Tất cả");
+        
+        binding.rvFilters.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        binding.rvFilters.setAdapter(filterAdapter);
+    }
+
+    private void setupRecyclerView() {
+        adapter = new UpcomingEventAdapter(event -> {
+            Intent intent = new Intent(MainActivity.this, EventDetailActivity.class);
+            intent.putExtra("EVENT_ID", event.getId());
+            startActivity(intent);
+        });
+        binding.rvUpcomingEvents.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        binding.rvUpcomingEvents.setAdapter(adapter);
+    }
+
+    private void observeEvents() {
+        eventViewModel.getAllEvents().observe(this, events -> {
+            if (events != null) {
+                allEvents = events;
+                filterAndDisplayEvents();
+            }
+        });
+    }
+
+    private void observeEventTypes() {
+        eventViewModel.getAllEventTypes().observe(this, types -> {
+            if (types != null) {
+                List<String> categories = new ArrayList<>();
+                categories.add("Tất cả");
+                categories.addAll(types);
+                filterAdapter.setFilters(categories);
+            }
+        });
+    }
+
+    private void filterAndDisplayEvents() {
+        List<Event> filteredList = allEvents.stream()
+            .filter(event -> {
+                // Lọc theo tên
+                boolean matchesSearch = event.getName().toLowerCase().contains(currentSearchQuery);
+                
+                // Lọc theo loại sự kiện
+                boolean matchesCategory = selectedCategory.equals("Tất cả") || 
+                                          (event.getEventType() != null && event.getEventType().equalsIgnoreCase(selectedCategory));
+                
+                return matchesSearch && matchesCategory;
+            })
+            .collect(Collectors.toList());
+        
+        adapter.setEvents(filteredList);
     }
 
     private void setupFab() {
@@ -120,10 +223,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void applyRolePermissions() {
-        // No special permissions for removed VENDOR role
-    }
-
     private void setupBottomNavigation() {
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -132,6 +231,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.nav_budget) {
                 startActivity(new Intent(MainActivity.this, BudgetEventActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_profile_menu) {
+                startActivity(new Intent(MainActivity.this, MyEventActivity.class));
                 return true;
             }
             return true;

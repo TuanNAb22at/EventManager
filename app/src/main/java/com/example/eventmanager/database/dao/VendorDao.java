@@ -6,10 +6,10 @@ import java.util.List;
 
 @Dao
 public interface VendorDao {
-    @Query("SELECT * FROM vendor")
+    @Query("SELECT * FROM vendor ORDER BY createdAt DESC")
     List<Vendor> getAllVendors();
 
-    @Query("SELECT * FROM vendor WHERE createdBy = :userId")
+    @Query("SELECT * FROM vendor WHERE createdBy = :userId ORDER BY createdAt DESC")
     List<Vendor> getVendorsByUserId(int userId);
 
     @Query("SELECT * FROM vendor WHERE id = :id")
@@ -18,8 +18,14 @@ public interface VendorDao {
     @Query("SELECT DISTINCT serviceType FROM vendor WHERE serviceType IS NOT NULL AND serviceType != ''")
     List<String> getDistinctServiceTypes();
 
+    @Query("SELECT * FROM vendor WHERE (name LIKE :query OR phone LIKE :query OR email LIKE :query) " +
+           "AND (:serviceType = '' OR serviceType = :serviceType) " +
+           "AND createdBy = :userId " +
+           "ORDER BY createdAt DESC")
+    List<Vendor> searchAndFilterVendors(int userId, String query, String serviceType);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertVendor(Vendor vendor);
+    long insertVendor(Vendor vendor);
 
     @Update
     void updateVendor(Vendor vendor);

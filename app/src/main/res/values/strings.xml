@@ -16,5 +16,14 @@
     <string name="menu_vendor">Dịch vụ</string>
     <string name="menu_add_event">Tạo Sự Kiện</string>
     <string name="menu_map">Bản đồ</string>
-    <string name="menu_profile">Tài khoản</string>
+    <string name="menu_my_event">Sự kiện của tôi</string>
+
+    <!-- Event Details -->
+    <string name="event_details">Chi tiết sự kiện</string>
+    <string name="edit_event">Chỉnh sửa sự kiện</string>
+    <string name="delete_event">Xóa sự kiện</string>
+    <string name="about_event">Về sự kiện</string>
+    <string name="tasks_list">Danh sách việc</string>
+    <string name="location">Địa điểm</string>
+    <string name="supplier">Nhà cung cấp</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.eventmanager.ui.budget;
+package com.example.eventmanager.ui.event;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,28 +10,30 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.eventmanager.adapter.EventAdapter;
 import com.example.eventmanager.adapter.FilterAdapter;
-import com.example.eventmanager.databinding.ActivityBudgetEventBinding;
+import com.example.eventmanager.databinding.ActivityMyEventBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.utils.SessionManager;
 import com.example.eventmanager.viewmodel.EventViewModel;
+import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BudgetEventActivity extends AppCompatActivity {
-    private ActivityBudgetEventBinding binding;
+public class MyEventActivity extends AppCompatActivity {
+
+    private ActivityMyEventBinding binding;
+    private EventViewModel eventViewModel;
     private EventAdapter adapter;
     private FilterAdapter filterAdapter;
-    private EventViewModel eventViewModel;
-    private List<Event> allEvents = new ArrayList<>();
     private SessionManager sessionManager;
+    private List<Event> allMyEvents = new ArrayList<>();
     private String currentSearchQuery = "";
     private String selectedCategory = "Tất cả";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityBudgetEventBinding.inflate(getLayoutInflater());
+        binding = ActivityMyEventBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         sessionManager = new SessionManager(this);
@@ -41,6 +43,7 @@ public class BudgetEventActivity extends AppCompatActivity {
         setupSearch();
         setupFilters();
         setupRecyclerView();
+        setupTabs();
         observeEvents();
         observeEventTypes();
     }
@@ -50,7 +53,7 @@ public class BudgetEventActivity extends AppCompatActivity {
     }
 
     private void setupSearch() {
-        binding.etSearchEvent.addTextChangedListener(new TextWatcher() {
+        binding.etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -82,35 +85,36 @@ public class BudgetEventActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         adapter = new EventAdapter(new ArrayList<>(), event -> {
-            Intent intent = new Intent(this, BudgetPlanActivity.class);
+            Intent intent = new Intent(MyEventActivity.this, EventDetailActivity.class);
             intent.putExtra("EVENT_ID", event.getId());
-            intent.putExtra("EVENT_NAME", event.getName());
-            intent.putExtra("TOTAL_BUDGET", event.getTotalBudget());
             startActivity(intent);
         });
-        binding.rvEvents.setLayoutManager(new LinearLayoutManager(this));
-        binding.rvEvents.setAdapter(adapter);
+        binding.rvMyEvents.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvMyEvents.setAdapter(adapter);
+    }
+
+    private void setupTabs() {
+        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                filterAndDisplayEvents();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
     }
 
     private void observeEvents() {
-        int userId = sessionManager.getUserId();
-        String role = sessionManager.getUserRole();
-
-        if (SessionManager.ROLE_ORGANIZER.equals(role)) {
-            eventViewModel.getAllEvents().observe(this, events -> {
-                if (events != null) {
-                    allEvents = events;
-                    filterAndDisplayEvents();
-                }
-            });
-        } else {
-            eventViewModel.getMyEvents(userId).observe(this, events -> {
-                if (events != null) {
-                    allEvents = events;
-                    filterAndDisplayEvents();
-                }
-            });
-        }
+        eventViewModel.getMyEvents(sessionManager.getUserId()).observe(this, events -> {
+            if (events != null) {
+                allMyEvents = events;
+                filterAndDisplayEvents();
+            }
+        });
     }
 
     private void observeEventTypes() {
@@ -125,25 +129,27 @@ public class BudgetEventActivity extends AppCompatActivity {
     }
 
     private void filterAndDisplayEvents() {
-        List<Event> filteredList = allEvents.stream()
+        int tabPosition = binding.tabLayout.getSelectedTabPosition();
+        
+        List<Event> filteredList = allMyEvents.stream()
             .filter(event -> {
-                // Lọc theo tên
+                // Lọc theo Tab (Sắp tới / Đã qua)
+                boolean matchesTab = (tabPosition == 0) 
+                    ? !"Đã kết thúc".equals(event.getStatus()) 
+                    : "Đã kết thúc".equals(event.getStatus());
+                
+                // Lọc theo từ khóa tìm kiếm
                 boolean matchesSearch = event.getName().toLowerCase().contains(currentSearchQuery);
                 
-                // Lọc theo loại sự kiện
+                // Lọc theo loại sự kiện (Category)
                 boolean matchesCategory = selectedCategory.equals("Tất cả") || 
                                           (event.getEventType() != null && event.getEventType().equalsIgnoreCase(selectedCategory));
                 
-                return matchesSearch && matchesCategory;
+                return matchesTab && matchesSearch && matchesCategory;
             })
             .collect(Collectors.toList());
         
         adapter.setEvents(filteredList);
         binding.tvEmptyState.setVisibility(filteredList.isEmpty() ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 }

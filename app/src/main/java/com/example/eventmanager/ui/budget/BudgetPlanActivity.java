@@ -91,7 +91,7 @@ public class BudgetPlanActivity extends AppCompatActivity {
     private void updateTotalBudget(double newBudget) {
         executorService.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
-            Event event = db.eventDao().getEventById(eventId);
+            Event event = db.eventDao().getEventByIdSync(eventId);
             if (event != null) {
                 event.setTotalBudget(newBudget);
                 db.eventDao().updateEvent(event);
