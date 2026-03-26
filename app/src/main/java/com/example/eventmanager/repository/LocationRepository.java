@@ -1,7 +1,6 @@
 package com.example.eventmanager.repository;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import com.example.eventmanager.database.dao.LocationDao;
 import com.example.eventmanager.model.Location;
 import java.util.List;
@@ -18,15 +17,11 @@ public class LocationRepository {
     }
 
     public LiveData<List<Location>> getAllLocations() {
-        MutableLiveData<List<Location>> data = new MutableLiveData<>();
-        executorService.execute(() -> data.postValue(locationDao.getAllLocations()));
-        return data;
+        return locationDao.getAllLocations();
     }
 
     public LiveData<Location> getLocationById(int id) {
-        MutableLiveData<Location> data = new MutableLiveData<>();
-        executorService.execute(() -> data.postValue(locationDao.getLocationById(id)));
-        return data;
+        return locationDao.getLocationById(id);
     }
 
     public void insert(Location location) {
