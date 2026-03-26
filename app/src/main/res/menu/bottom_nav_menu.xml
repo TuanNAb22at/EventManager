@@ -14,9 +14,9 @@
         android:title=""
         android:enabled="false" />
     <item
-        android:id="@+id/nav_map"
-        android:icon="@drawable/ic_map"
-        android:title="Bản đồ" />
+        android:id="@+id/nav_venue"
+        android:icon="@drawable/ic_location"
+        android:title="Địa điểm" />
     <item
         android:id="@+id/nav_profile_menu"
         android:icon="@drawable/ic_user"

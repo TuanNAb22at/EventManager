@@ -40,6 +40,7 @@
         <activity android:name=".ui.budget.BudgetPlanActivity" />
         <activity android:name=".ui.budget.AddBudgetItemActivity" />
         <activity android:name=".ui.budget.BudgetEventActivity" />
+        <activity android:name=".ui.budget.SelectEventBudgetActivity" />
         <activity android:name=".ui.task.AddTaskActivity" />
         <activity android:name=".ui.task.TaskListActivity" />
         <activity android:name=".ui.schedule.AddScheduleActivity" />

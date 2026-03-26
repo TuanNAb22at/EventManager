@@ -28,6 +28,7 @@ import com.example.eventmanager.ui.budget.BudgetEventActivity;
 import com.example.eventmanager.ui.event.AddEventActivity;
 import com.example.eventmanager.ui.event.EventDetailActivity;
 import com.example.eventmanager.ui.event.MyEventActivity;
+import com.example.eventmanager.ui.location.VenueListActivity;
 import com.example.eventmanager.ui.profile.ProfileActivity;
 import com.example.eventmanager.ui.vendor.VendorListActivity;
 import com.example.eventmanager.utils.SessionManager;
@@ -234,6 +235,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.nav_profile_menu) {
                 startActivity(new Intent(MainActivity.this, MyEventActivity.class));
+                return true;
+            } else if (itemId == R.id.nav_venue) {
+                startActivity(new Intent(MainActivity.this, VenueListActivity.class));
                 return true;
             }
             return true;
