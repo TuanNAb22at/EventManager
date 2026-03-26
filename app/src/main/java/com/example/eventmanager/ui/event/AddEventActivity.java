@@ -15,6 +15,7 @@ import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityAddEventBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.model.Location;
+import com.example.eventmanager.ui.location.LocationMapActivity;
 import com.example.eventmanager.utils.SessionManager;
 import com.example.eventmanager.viewmodel.EventViewModel;
 import java.text.SimpleDateFormat;
@@ -36,6 +37,7 @@ public class AddEventActivity extends AppCompatActivity {
     private EventViewModel eventViewModel;
     private String selectedBannerUri = null;
     private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int PICK_LOCATION_REQUEST = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,7 @@ public class AddEventActivity extends AppCompatActivity {
         setupToolbar();
         setupDateTimePickers();
         setupImagePicker();
+        setupLocationPicker();
         observeEventTypes();
 
         binding.btnCreateEvent.setOnClickListener(v -> saveEvent());
@@ -64,7 +67,6 @@ public class AddEventActivity extends AppCompatActivity {
             if (types != null && !types.isEmpty()) {
                 eventTypes.addAll(types);
             } else {
-                // Default types if none in DB
                 eventTypes.add("Đám cưới (Wedding)");
                 eventTypes.add("Sinh nhật (Birthday)");
                 eventTypes.add("Hội nghị/Sự kiện doanh nghiệp");
@@ -92,6 +94,13 @@ public class AddEventActivity extends AppCompatActivity {
         });
     }
 
+    private void setupLocationPicker() {
+        binding.btnOpenMap.setOnClickListener(v -> {
+            Intent intent = new Intent(this, LocationMapActivity.class);
+            startActivityForResult(intent, PICK_LOCATION_REQUEST);
+        });
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -107,6 +116,11 @@ public class AddEventActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     Toast.makeText(this, "Không thể chọn ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+            }
+        } else if (requestCode == PICK_LOCATION_REQUEST && resultCode == RESULT_OK && data != null) {
+            String locationName = data.getStringExtra("LOCATION_NAME");
+            if (locationName != null) {
+                binding.etLocation.setText(locationName);
             }
         }
     }
@@ -147,7 +161,6 @@ public class AddEventActivity extends AppCompatActivity {
         String startTime = binding.tvStartTime.getText().toString().trim();
         String endTime = binding.tvEndTime.getText().toString().trim();
         String locationName = binding.etLocation.getText().toString().trim();
-        // String guestsStr = binding.etTotalGuests.getText().toString().trim();
         String description = binding.etDescription.getText().toString().trim();
 
         if (name.isEmpty()) {
@@ -163,23 +176,11 @@ public class AddEventActivity extends AppCompatActivity {
             return;
         }
 
-        int totalGuests = 0;
-        /*
-        if (!guestsStr.isEmpty()) {
-            try {
-                totalGuests = Integer.parseInt(guestsStr);
-            } catch (NumberFormatException ignored) {}
-        }
-        */
-
-        final int finalTotalGuests = totalGuests;
-
         executorService.execute(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(this);
                 int userId = sessionManager.getUserId();
 
-                // 1. Xử lý Location
                 Integer locationId = null;
                 if (!locationName.isEmpty()) {
                     Location loc = new Location();
@@ -190,7 +191,6 @@ public class AddEventActivity extends AppCompatActivity {
                     locationId = (int) newLocId;
                 }
 
-                // 2. Tạo và Lưu Event
                 Event event = new Event();
                 event.setName(name);
                 event.setEventType(eventType);
@@ -200,7 +200,7 @@ public class AddEventActivity extends AppCompatActivity {
                 event.setLocationId(locationId);
                 event.setCreatedBy(userId);
                 event.setBannerUri(selectedBannerUri);
-                event.setTotalGuests(finalTotalGuests);
+                event.setTotalGuests(0);
                 event.setStatus("Đang lên kế hoạch");
                 event.setTotalBudget(0.0);
 

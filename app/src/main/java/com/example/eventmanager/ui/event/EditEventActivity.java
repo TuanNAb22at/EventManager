@@ -202,7 +202,7 @@ public class EditEventActivity extends AppCompatActivity {
         // Load location name
         if (event.getLocationId() != null) {
             executorService.execute(() -> {
-                Location location = AppDatabase.getInstance(this).locationDao().getLocationById(event.getLocationId());
+                Location location = AppDatabase.getInstance(this).locationDao().getLocationByIdSync(event.getLocationId());
                 if (location != null) {
                     runOnUiThread(() -> binding.etLocation.setText(location.getName()));
                 }
@@ -250,7 +250,7 @@ public class EditEventActivity extends AppCompatActivity {
                     loc.setCreatedBy(userId);
                     locationId = (int) db.locationDao().insertLocation(loc);
                 } else {
-                    Location loc = db.locationDao().getLocationById(locationId);
+                    Location loc = db.locationDao().getLocationByIdSync(locationId);
                     if (loc != null) {
                         loc.setName(locationName);
                         loc.setAddress(locationName);
