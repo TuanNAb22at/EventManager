@@ -75,7 +75,7 @@ public class EventDetailActivity extends AppCompatActivity {
         // Hiển thị địa điểm
         if (event.getLocationId() != null) {
             executorService.execute(() -> {
-                Location location = AppDatabase.getInstance(this).locationDao().getLocationById(event.getLocationId());
+                Location location = AppDatabase.getInstance(this).locationDao().getLocationByIdSync(event.getLocationId());
                 if (location != null) {
                     runOnUiThread(() -> {
                         binding.tvEventLocation.setText(location.getName());
