@@ -18,9 +18,9 @@ import java.util.concurrent.Executors;
         Event.class, Guest.class, Task.class, User.class, 
         Vendor.class, Budget.class, Location.class, 
         Schedule.class, Feedback.class, Role.class, UserRole.class,
-        EventVendor.class
+        EventVendor.class, TaskAssignee.class
     },
-    version = 18, // Tăng version từ 17 lên 18 để áp dụng thay đổi Index
+    version = 20,
     exportSchema = false
 )
 @TypeConverters(DateConverter.class)
@@ -40,6 +40,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract RoleDao roleDao();
     public abstract UserRoleDao userRoleDao();
     public abstract EventVendorDao eventVendorDao();
+    public abstract TaskAssigneeDao taskAssigneeDao();
 
     public static AppDatabase getInstance(Context context) {
         if (instance == null) {

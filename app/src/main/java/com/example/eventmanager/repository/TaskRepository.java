@@ -18,15 +18,19 @@ public class TaskRepository {
     }
 
     public LiveData<List<Task>> getAllTasks() {
-        MutableLiveData<List<Task>> data = new MutableLiveData<>();
-        executorService.execute(() -> data.postValue(taskDao.getAllTasks()));
-        return data;
+        return taskDao.getAllTasks();
     }
 
     public LiveData<List<Task>> getTasksByEventId(int eventId) {
-        MutableLiveData<List<Task>> data = new MutableLiveData<>();
-        executorService.execute(() -> data.postValue(taskDao.getTasksByEventId(eventId)));
-        return data;
+        return taskDao.getTasksByEventId(eventId);
+    }
+
+    public LiveData<List<Task>> getTasksByAssignedTo(int userId) {
+        return taskDao.getTasksByAssignedTo(userId);
+    }
+
+    public LiveData<List<Task>> getTasksByEventAndAssignedTo(int eventId, int userId) {
+        return taskDao.getTasksByEventAndAssignedTo(eventId, userId);
     }
 
     public LiveData<Task> getTaskById(int id) {

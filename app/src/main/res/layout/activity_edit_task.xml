@@ -33,7 +33,7 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Thêm công việc mới"
+                android:text="Chỉnh sửa công việc"
                 android:textColor="#1A1C1E"
                 android:textSize="22sp"
                 android:textStyle="bold"
@@ -60,9 +60,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tên công việc"
-                android:textColor="#1A1C1E"
-                android:textSize="16sp"
+                android:text="TÊN CÔNG VIỆC"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <EditText
@@ -72,19 +72,17 @@
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_search_home"
                 android:backgroundTint="#F2F5F9"
-                android:hint="VD: Đặt bánh kem"
                 android:paddingHorizontal="20dp"
                 android:textColor="#1A1C1E"
-                android:textColorHint="#94A3B8"
                 android:textSize="16sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Hạn chót"
-                android:textColor="#1A1C1E"
-                android:textSize="16sp"
+                android:text="HẠN CHÓT"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -94,55 +92,79 @@
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_search_home"
                 android:backgroundTint="#F2F5F9"
-                android:drawableStart="@drawable/ic_calendar"
+                android:drawableEnd="@drawable/ic_calendar"
                 android:drawablePadding="16dp"
-                android:drawableTint="#5C5CFF"
+                android:drawableTint="#94A3B8"
                 android:gravity="center_vertical"
-                android:hint="Chọn ngày và giờ"
                 android:paddingHorizontal="20dp"
                 android:textColor="#1A1C1E"
-                android:textColorHint="#94A3B8"
                 android:textSize="16sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Người thực hiện"
-                android:textColor="#1A1C1E"
-                android:textSize="16sp"
+                android:text="NGƯỜI THỰC HIỆN"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutAssignee"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_marginTop="12dp"
-                app:boxStrokeWidth="0dp"
-                app:boxStrokeWidthFocused="0dp"
-                app:hintEnabled="false">
+                android:background="@drawable/bg_search_home"
+                android:backgroundTint="#F2F5F9"
+                android:paddingHorizontal="16dp">
 
-                <AutoCompleteTextView
-                    android:id="@+id/actvAssignee"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
                     android:background="@drawable/bg_search_home"
-                    android:backgroundTint="#F2F5F9"
-                    android:hint="Chọn nhân viên"
-                    android:inputType="none"
-                    android:paddingHorizontal="20dp"
-                    android:textColor="#1A1C1E"
-                    android:textColorHint="#94A3B8"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:backgroundTint="@color/white"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivSelectedAssigneeAvatar"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_user"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle" />
+
+                    <TextView
+                        android:id="@+id/tvSelectedAssigneeName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Chọn người làm"
+                        android:textColor="#1A1C1E"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_search"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="#94A3B8" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Độ ưu tiên"
-                android:textColor="#1A1C1E"
-                android:textSize="16sp"
+                android:text="ĐỘ ƯU TIÊN"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.button.MaterialButtonToggleGroup
@@ -154,8 +176,7 @@
                 android:backgroundTint="#F2F5F9"
                 android:padding="4dp"
                 app:singleSelection="true"
-                app:selectionRequired="true"
-                app:checkedButton="@+id/btnPriorityMedium">
+                app:selectionRequired="true">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPriorityLow"
@@ -177,8 +198,8 @@
                     android:layout_weight="1"
                     android:text="Trung bình"
                     android:textAllCaps="false"
-                    android:textColor="#5C5CFF"
-                    app:backgroundTint="@color/white"
+                    android:textColor="#94A3B8"
+                    app:backgroundTint="@android:color/transparent"
                     app:cornerRadius="25dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -198,9 +219,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Ghi chú"
-                android:textColor="#1A1C1E"
-                android:textSize="16sp"
+                android:text="GHI CHÚ CHI TIẾT"
+                android:textColor="#94A3B8"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <EditText
@@ -211,23 +232,21 @@
                 android:background="@drawable/bg_search_home"
                 android:backgroundTint="#F2F5F9"
                 android:gravity="top"
-                android:hint="Thêm chi tiết hoặc hướng dẫn cụ thể..."
                 android:padding="20dp"
                 android:textColor="#1A1C1E"
-                android:textColorHint="#94A3B8"
                 android:textSize="16sp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSaveTask"
+        android:id="@+id/btnUpdateChanges"
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_gravity="bottom"
         android:layout_margin="24dp"
         android:backgroundTint="#5C5CFF"
-        android:text="Lưu công việc"
+        android:text="Cập nhật thay đổi"
         android:textSize="18sp"
         android:textStyle="bold"
         app:cornerRadius="32dp"
