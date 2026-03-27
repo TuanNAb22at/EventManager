@@ -254,12 +254,12 @@
                     app:boxStrokeWidthFocused="0dp">
 
                     <AutoCompleteTextView
-                        android:id="@+id/actvLocation"
+                        android:id="@+id/etLocation"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:background="@drawable/bg_input_field"
                         android:drawableEnd="@drawable/ic_location"
-                        android:hint="Chọn địa điểm đã lưu..."
+                        android:hint="Chọn hoặc nhập địa điểm..."
                         android:paddingHorizontal="16dp"
                         android:textSize="14sp"
                         android:inputType="text" />
@@ -276,7 +276,7 @@
                     app:tint="@color/primary_blue" />
             </LinearLayout>
 
-            <!-- Total Guests
+            <!-- Total Guests -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -295,7 +295,6 @@
                 android:inputType="number"
                 android:paddingHorizontal="16dp"
                 android:textSize="14sp" />
-            -->
 
             <!-- Description -->
             <TextView

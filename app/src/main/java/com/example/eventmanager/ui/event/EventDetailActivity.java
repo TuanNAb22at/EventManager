@@ -12,6 +12,9 @@ import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityEventDetailBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.model.Location;
+import com.example.eventmanager.ui.task.TaskListActivity;
+import com.example.eventmanager.ui.location.VenueListActivity;
+import com.example.eventmanager.ui.guest.GuestListActivity;
 import com.example.eventmanager.utils.SessionManager;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,6 +44,7 @@ public class EventDetailActivity extends AppCompatActivity {
         setupToolbar();
         observeEvent();
         setupButtons();
+        observeGuestCount();
     }
 
     private void setupToolbar() {
@@ -57,6 +61,14 @@ public class EventDetailActivity extends AppCompatActivity {
             if (event != null) {
                 currentEvent = event;
                 displayEventDetails(event);
+            }
+        });
+    }
+
+    private void observeGuestCount() {
+        AppDatabase.getInstance(this).guestDao().getGuestCountByEventId(eventId).observe(this, count -> {
+            if (count != null) {
+                binding.tvAttendees.setText(count + " Tham gia");
             }
         });
     }
@@ -102,8 +114,32 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
+        binding.btnInvite.setOnClickListener(v -> {
+            Intent intent = new Intent(this, GuestListActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            if (currentEvent != null) intent.putExtra("EVENT_NAME", currentEvent.getName());
+            startActivity(intent);
+        });
+
         binding.btnTasks.setOnClickListener(v -> {
-            // Intent sang TaskListActivity
+            Intent intent = new Intent(this, TaskListActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            if (currentEvent != null) intent.putExtra("EVENT_NAME", currentEvent.getName());
+            startActivity(intent);
+        });
+
+        binding.btnSupplier.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EventVendorListActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            if (currentEvent != null) intent.putExtra("EVENT_NAME", currentEvent.getName());
+            startActivity(intent);
+        });
+
+        binding.btnLocation.setOnClickListener(v -> {
+            Intent intent = new Intent(this, VenueListActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            if (currentEvent != null) intent.putExtra("EVENT_NAME", currentEvent.getName());
+            startActivity(intent);
         });
 
         binding.btnDelete.setOnClickListener(v -> showDeleteConfirmDialog());

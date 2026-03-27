@@ -40,7 +40,12 @@ public class EventVendorListActivity extends AppCompatActivity implements EventV
             return;
         }
 
-        binding.tvEventName.setText(eventName != null ? eventName : "Sự kiện");
+        if (eventName != null) {
+            binding.tvEventName.setText(eventName);
+        } else {
+            loadEventName();
+        }
+
         setupRecyclerView();
         observeVendors();
 
@@ -50,6 +55,15 @@ public class EventVendorListActivity extends AppCompatActivity implements EventV
             intent.putExtra("EVENT_ID", eventId);
             intent.putExtra("EVENT_NAME", eventName);
             startActivityForResult(intent, REQUEST_SELECT_VENDOR);
+        });
+    }
+
+    private void loadEventName() {
+        AppDatabase.getInstance(this).eventDao().getEventById(eventId).observe(this, event -> {
+            if (event != null) {
+                eventName = event.getName();
+                binding.tvEventName.setText(eventName);
+            }
         });
     }
 
@@ -63,7 +77,6 @@ public class EventVendorListActivity extends AppCompatActivity implements EventV
         AppDatabase.getInstance(this).eventVendorDao().getVendorsForEvent(eventId).observe(this, vendors -> {
             adapter.setVendors(vendors);
             binding.tvTotalVendors.setText(String.valueOf(vendors.size()));
-            // For now, pending vendors is 0 or logic can be added later
             binding.tvPendingVendors.setText("0");
         });
     }
@@ -84,7 +97,6 @@ public class EventVendorListActivity extends AppCompatActivity implements EventV
 
     @Override
     public void onManage(Vendor vendor) {
-        // Option to view vendor details or edit contract note
         Toast.makeText(this, "Quản lý hợp đồng với " + vendor.getName(), Toast.LENGTH_SHORT).show();
     }
 
@@ -92,7 +104,6 @@ public class EventVendorListActivity extends AppCompatActivity implements EventV
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SELECT_VENDOR && resultCode == RESULT_OK) {
-            // Vendors are observed via LiveData, so it will auto-update
             Toast.makeText(this, "Đã thêm nhà cung cấp vào sự kiện", Toast.LENGTH_SHORT).show();
         }
     }

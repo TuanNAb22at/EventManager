@@ -10,6 +10,9 @@ public interface LocationDao {
     @Query("SELECT * FROM location ORDER BY createdAt DESC")
     LiveData<List<Location>> getAllLocations();
 
+    @Query("SELECT * FROM location ORDER BY createdAt DESC")
+    List<Location> getAllLocationsSync();
+
     @Query("SELECT * FROM location WHERE id = :id")
     LiveData<Location> getLocationById(int id);
 

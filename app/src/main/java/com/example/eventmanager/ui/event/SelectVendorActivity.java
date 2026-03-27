@@ -46,7 +46,11 @@ public class SelectVendorActivity extends AppCompatActivity implements SelectVen
             return;
         }
 
-        binding.tvEventName.setText("Cho sự kiện: " + (eventName != null ? eventName : "..."));
+        if (eventName != null) {
+            binding.tvEventName.setText("Cho sự kiện: " + eventName);
+        } else {
+            loadEventName();
+        }
         
         setupRecyclerView();
         setupFilters();
@@ -57,6 +61,15 @@ public class SelectVendorActivity extends AppCompatActivity implements SelectVen
 
         loadAlreadySelectedVendors();
         loadFilters();
+    }
+
+    private void loadEventName() {
+        AppDatabase.getInstance(this).eventDao().getEventById(eventId).observe(this, event -> {
+            if (event != null) {
+                eventName = event.getName();
+                binding.tvEventName.setText("Cho sự kiện: " + eventName);
+            }
+        });
     }
 
     private void setupRecyclerView() {

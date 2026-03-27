@@ -48,6 +48,19 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
 
         setupUI();
         observeTasks();
+        
+        if (eventName == null) {
+            loadEventName();
+        }
+    }
+
+    private void loadEventName() {
+        AppDatabase.getInstance(this).eventDao().getEventById(eventId).observe(this, event -> {
+            if (event != null) {
+                eventName = event.getName();
+                binding.tvEventTag.setText(eventName);
+            }
+        });
     }
 
     private void setupUI() {
@@ -58,7 +71,6 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
         binding.rvTasks.setLayoutManager(new LinearLayoutManager(this));
         binding.rvTasks.setAdapter(adapter);
 
-        // Role-based UI control for Add Task FAB
         if (sessionManager.canManageAll()) {
             binding.fabAddTask.setVisibility(View.VISIBLE);
             binding.fabAddTask.setOnClickListener(v -> {
@@ -133,7 +145,6 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
                 else if (priorityFilter == binding.chipMedium.getId()) matchesPriority = task.getPriority() == 1;
                 else if (priorityFilter == binding.chipLow.getId()) matchesPriority = task.getPriority() == 0;
 
-                // Rule for Staff: See only assigned tasks
                 boolean matchesStaffRole = true;
                 if (sessionManager.isStaff()) {
                     List<User> assignees = db.taskAssigneeDao().getAssigneesForTask(task.getId());
@@ -156,7 +167,6 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
 
     @Override
     public void onStatusChanged(Task task, boolean isDone) {
-        // Validation check for Staff
         if (sessionManager.isStaff()) {
             executorService.execute(() -> {
                 List<User> assignees = AppDatabase.getInstance(this).taskAssigneeDao().getAssigneesForTask(task.getId());

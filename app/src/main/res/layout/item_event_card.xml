@@ -100,10 +100,11 @@
                 android:background="@drawable/bg_circle_translucent" />
 
             <TextView
+                android:id="@+id/tvAttendeeCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="+20 người tham gia"
+                android:text="+0 người tham gia"
                 android:textColor="@color/primary_blue"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -134,4 +135,3 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
-
