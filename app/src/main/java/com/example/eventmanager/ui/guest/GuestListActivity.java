@@ -14,6 +14,7 @@ import com.example.eventmanager.adapter.GuestAdapter;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityGuestListBinding;
 import com.example.eventmanager.model.Guest;
+import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -25,6 +26,8 @@ public class GuestListActivity extends AppCompatActivity {
     private GuestAdapter adapter;
     private int eventId;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private List<Guest> invitedGuests = new ArrayList<>();
+    private List<Guest> allSystemGuests = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +43,8 @@ public class GuestListActivity extends AppCompatActivity {
 
         setupToolbar();
         setupRecyclerView();
-        loadGuests();
+        setupTabs();
+        loadData();
 
         binding.fabAddGuest.setOnClickListener(v -> showAddGuestDialog());
     }
@@ -51,29 +55,62 @@ public class GuestListActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         adapter = new GuestAdapter(new ArrayList<>(), guest -> {
-            // Option to edit or delete guest can be added here
+            Intent intent = new Intent(this, GuestDetailActivity.class);
+            intent.putExtra("GUEST_ID", guest.getId());
+            intent.putExtra("CURRENT_EVENT_ID", eventId);
+            startActivity(intent);
         });
         binding.rvGuests.setLayoutManager(new LinearLayoutManager(this));
         binding.rvGuests.setAdapter(adapter);
     }
 
-    private void loadGuests() {
+    private void setupTabs() {
+        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int position = tab.getPosition();
+                // Chỉ hiện nút + khi ở tab "Tất cả khách" (vị trí 1)
+                binding.fabAddGuest.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
+                updateListBasedOnTab(position);
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+        
+        // Mặc định tab 0 không hiện nút +
+        binding.fabAddGuest.setVisibility(View.GONE);
+    }
+
+    private void loadData() {
         executorService.execute(() -> {
-            List<Guest> guests = AppDatabase.getInstance(this).guestDao().getGuestsByEventId(eventId);
+            invitedGuests = AppDatabase.getInstance(this).guestDao().getGuestsByEventId(eventId);
+            allSystemGuests = AppDatabase.getInstance(this).guestDao().getAllGuests();
+            
             runOnUiThread(() -> {
-                if (guests.isEmpty()) {
-                    binding.tvEmptyState.setVisibility(View.VISIBLE);
-                } else {
-                    binding.tvEmptyState.setVisibility(View.GONE);
-                }
-                adapter.setGuests(guests);
+                updateListBasedOnTab(binding.tabLayout.getSelectedTabPosition());
             });
         });
     }
 
+    private void updateListBasedOnTab(int position) {
+        List<Guest> listToShow = (position == 0) ? invitedGuests : allSystemGuests;
+        
+        if (listToShow.isEmpty()) {
+            binding.tvEmptyState.setVisibility(View.VISIBLE);
+            binding.tvEmptyState.setText(position == 0 ? "Chưa có khách mời nào cho sự kiện này" : "Hệ thống chưa có khách hàng nào");
+        } else {
+            binding.tvEmptyState.setVisibility(View.GONE);
+        }
+        adapter.setGuests(listToShow);
+    }
+
     private void showAddGuestDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Thêm khách mời mới");
+        builder.setTitle("Thêm khách hàng mới");
 
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_guest, null);
         EditText etName = view.findViewById(R.id.etGuestName);
@@ -91,25 +128,31 @@ public class GuestListActivity extends AppCompatActivity {
                 return;
             }
 
-            saveGuest(name, email, phone);
+            saveGuestToSystem(name, email, phone);
         });
         builder.setNegativeButton("Hủy", null);
         builder.show();
     }
 
-    private void saveGuest(String name, String email, String phone) {
+    private void saveGuestToSystem(String name, String email, String phone) {
         executorService.execute(() -> {
             Guest guest = new Guest();
-            guest.setEventId(eventId);
+            guest.setEventId(null); // Tạo mới chỉ vào "Tất cả khách", chưa mời vào sự kiện nào
             guest.setName(name);
             guest.setEmail(email);
             guest.setPhone(phone);
-            guest.setStatus("Chờ xác nhận");
+            guest.setStatus("Chưa mời");
 
             AppDatabase.getInstance(this).guestDao().insertGuest(guest);
-            loadGuests();
-            runOnUiThread(() -> Toast.makeText(this, "Đã thêm khách mời", Toast.LENGTH_SHORT).show());
+            loadData();
+            runOnUiThread(() -> Toast.makeText(this, "Đã thêm khách hàng vào hệ thống", Toast.LENGTH_SHORT).show());
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData();
     }
 
     @Override

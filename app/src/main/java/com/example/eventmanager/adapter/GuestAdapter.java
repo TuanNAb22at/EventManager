@@ -40,7 +40,15 @@ public class GuestAdapter extends RecyclerView.Adapter<GuestAdapter.GuestViewHol
         Guest guest = guests.get(position);
         holder.nameTextView.setText(guest.getName());
         holder.emailTextView.setText(guest.getEmail());
-        holder.statusTextView.setText(guest.getStatus());
+
+        // Cập nhật hiển thị trạng thái linh hoạt
+        if (holder.tvStatus != null) {
+            holder.tvStatus.setText(guest.getStatus());
+            // Có thể thêm đổi màu tag theo trạng thái tại đây nếu muốn
+        } else {
+            holder.statusTextView.setText(guest.getStatus());
+        }
+
         holder.itemView.setOnClickListener(v -> onItemClick.onItemClick(guest));
     }
 
@@ -52,13 +60,15 @@ public class GuestAdapter extends RecyclerView.Adapter<GuestAdapter.GuestViewHol
     public static class GuestViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
         TextView emailTextView;
-        TextView statusTextView;
+        TextView statusTextView; // fallback cho layout cũ
+        TextView tvStatus; // cho layout Material hiện đại
 
         public GuestViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.guestNameTextView);
             emailTextView = itemView.findViewById(R.id.guestEmailTextView);
             statusTextView = itemView.findViewById(R.id.guestStatusTextView);
+            tvStatus = itemView.findViewById(R.id.tvStatus);
         }
     }
 }

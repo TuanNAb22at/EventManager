@@ -110,7 +110,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:text="+20 Going"
+                        android:text="+20 Tham gia"
                         android:textColor="@color/primary_blue"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -122,7 +122,7 @@
                     android:backgroundTint="@color/primary_blue"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
-                    android:text="Invite"
+                    android:text="Mời"
                     android:textSize="12sp"
                     app:cornerRadius="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"

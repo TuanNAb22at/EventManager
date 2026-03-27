@@ -1,32 +1,20 @@
 package com.example.eventmanager.model;
 
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity(
-    tableName = "guest",
-    foreignKeys = @ForeignKey(
-        entity = Event.class,
-        parentColumns = "id",
-        childColumns = "eventId",
-        onDelete = ForeignKey.CASCADE
-    )
-)
+@Entity(tableName = "guest")
 public class Guest {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    @ColumnInfo(index = true)
-    private int eventId;
+    private Integer eventId; // Để null nếu chưa được mời vào sự kiện nào
 
     private String name;
     private String email;
     private String phone;
     private String status;
     
-    // Audit fields (Lỗi 10)
     private long createdAt;
     private long updatedAt;
 
@@ -35,11 +23,10 @@ public class Guest {
         this.updatedAt = System.currentTimeMillis();
     }
 
-    // Getters and Setters (Lỗi 9)
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-    public int getEventId() { return eventId; }
-    public void setEventId(int eventId) { this.eventId = eventId; }
+    public Integer getEventId() { return eventId; }
+    public void setEventId(Integer eventId) { this.eventId = eventId; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public String getEmail() { return email; }

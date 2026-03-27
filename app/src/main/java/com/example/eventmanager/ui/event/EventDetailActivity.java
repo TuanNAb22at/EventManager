@@ -140,7 +140,7 @@ public class EventDetailActivity extends AppCompatActivity {
         executorService.execute(() -> {
             int count = AppDatabase.getInstance(this).guestDao().getGuestCountByEventId(eventId);
             runOnUiThread(() -> {
-                binding.tvAttendees.setText("+" + count + " Going");
+                binding.tvAttendees.setText("+" + count + " Tham gia");
             });
         });
     }
@@ -169,7 +169,7 @@ public class EventDetailActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        updateGuestCount(); // Cập nhật lại số lượng khách khi quay lại từ màn hình danh sách khách
+        updateGuestCount();
     }
 
     @Override
