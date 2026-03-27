@@ -23,6 +23,7 @@ public class VenueAdapter extends RecyclerView.Adapter<VenueAdapter.ViewHolder> 
 
     public interface OnVenueClickListener {
         void onVenueClick(Location location);
+        void onDetailClick(Location location);
     }
 
     public VenueAdapter(OnVenueClickListener listener) {
@@ -55,7 +56,6 @@ public class VenueAdapter extends RecyclerView.Adapter<VenueAdapter.ViewHolder> 
 
         holder.tvPremiumTag.setVisibility(location.isPremium() ? View.VISIBLE : View.GONE);
         
-        // Load image using Glide
         if (location.getImageUrl() != null && !location.getImageUrl().isEmpty()) {
             Glide.with(holder.itemView.getContext())
                     .load(location.getImageUrl())
@@ -67,7 +67,7 @@ public class VenueAdapter extends RecyclerView.Adapter<VenueAdapter.ViewHolder> 
             holder.ivVenueImage.setImageResource(R.drawable.ic_event_placeholder);
         }
         
-        holder.btnDetails.setOnClickListener(v -> listener.onVenueClick(location));
+        holder.btnDetails.setOnClickListener(v -> listener.onDetailClick(location));
         holder.itemView.setOnClickListener(v -> listener.onVenueClick(location));
     }
 

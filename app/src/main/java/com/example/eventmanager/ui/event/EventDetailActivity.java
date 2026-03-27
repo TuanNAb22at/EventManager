@@ -12,6 +12,8 @@ import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityEventDetailBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.model.Location;
+import com.example.eventmanager.ui.location.VenueDetailActivity;
+import com.example.eventmanager.ui.location.VenueListActivity;
 import com.example.eventmanager.utils.SessionManager;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,6 +24,7 @@ public class EventDetailActivity extends AppCompatActivity {
     private int eventId;
     private SessionManager sessionManager;
     private Event currentEvent;
+    private Location currentLocation;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
@@ -65,17 +68,16 @@ public class EventDetailActivity extends AppCompatActivity {
         binding.tvEventTitle.setText(event.getName());
         binding.tvEventDate.setText(event.getStartAt());
         
-        // Hiển thị mô tả (description)
         if (event.getDescription() != null && !event.getDescription().isEmpty()) {
             binding.tvAboutContent.setText(event.getDescription());
         } else {
             binding.tvAboutContent.setText("Chưa có mô tả cho sự kiện này.");
         }
         
-        // Hiển thị địa điểm
         if (event.getLocationId() != null) {
             executorService.execute(() -> {
                 Location location = AppDatabase.getInstance(this).locationDao().getLocationByIdSync(event.getLocationId());
+                currentLocation = location;
                 if (location != null) {
                     runOnUiThread(() -> {
                         binding.tvEventLocation.setText(location.getName());
@@ -84,11 +86,11 @@ public class EventDetailActivity extends AppCompatActivity {
                 }
             });
         } else {
+            currentLocation = null;
             binding.tvEventLocation.setText("Địa điểm chưa xác định");
             binding.tvEventAddress.setText("Vui lòng cập nhật địa điểm");
         }
         
-        // Hiển thị ảnh banner từ bannerUri
         if (event.getBannerUri() != null && !event.getBannerUri().isEmpty()) {
             Glide.with(this)
                 .load(event.getBannerUri())
@@ -102,9 +104,25 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
-        binding.btnTasks.setOnClickListener(v -> {
-            // Intent sang TaskListActivity
-        });
+        // Cả nút màu cam và phần khung địa điểm đều mở Chi tiết địa điểm ở chế độ "Sự kiện"
+        View.OnClickListener openVenueDetail = v -> {
+            if (currentLocation != null) {
+                Intent intent = new Intent(this, VenueDetailActivity.class);
+                intent.putExtra("LOCATION_DATA", currentLocation);
+                intent.putExtra(VenueDetailActivity.EXTRA_EVENT_CONTEXT, true); // Chế độ có nút Thay đổi
+                intent.putExtra(VenueDetailActivity.EXTRA_EVENT_ID, eventId);
+                startActivity(intent);
+            } else {
+                // Nếu chưa có địa điểm thì mở thẳng danh sách chọn
+                Intent intent = new Intent(this, VenueListActivity.class);
+                intent.putExtra(VenueListActivity.EXTRA_SELECT_MODE, true);
+                startActivity(intent);
+            }
+        };
+
+        binding.btnLocation.setOnClickListener(openVenueDetail);
+        View locationContainer = (View) binding.tvEventLocation.getParent();
+        locationContainer.setOnClickListener(openVenueDetail);
 
         binding.btnDelete.setOnClickListener(v -> showDeleteConfirmDialog());
     }
