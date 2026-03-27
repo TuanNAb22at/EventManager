@@ -80,14 +80,28 @@ public class AddEventActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
     }
 
-    private void setupEventTypeSpinner() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_dropdown_item_1line,
-                EVENT_TYPES
-        );
-        binding.actvEventType.setAdapter(adapter);
-        binding.actvEventType.setOnClickListener(v -> binding.actvEventType.showDropDown());
+    private void observeEventTypes() {
+        eventViewModel.getAllEventTypes().observe(this, types -> {
+            List<String> eventTypes = new ArrayList<>();
+            if (types != null && !types.isEmpty()) {
+                eventTypes.addAll(types);
+            } else {
+                eventTypes.add("Đám cưới (Wedding)");
+                eventTypes.add("Sinh nhật (Birthday)");
+                eventTypes.add("Hội nghị/Sự kiện doanh nghiệp");
+                eventTypes.add("Lễ kỷ niệm");
+                eventTypes.add("Tiệc tối (Gala Dinner)");
+                eventTypes.add("Buổi hòa nhạc/Show diễn");
+            }
+            
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    this,
+                    android.R.layout.simple_dropdown_item_1line,
+                    eventTypes
+            );
+            binding.actvEventType.setAdapter(adapter);
+            binding.actvEventType.setOnClickListener(v -> binding.actvEventType.showDropDown());
+        });
     }
 
     private void setupLocationAutocomplete() {
@@ -133,6 +147,13 @@ public class AddEventActivity extends AppCompatActivity {
         });
     }
 
+    private void setupLocationPicker() {
+        binding.btnOpenMap.setOnClickListener(v -> {
+            Intent intent = new Intent(this, LocationMapActivity.class);
+            startActivityForResult(intent, PICK_LOCATION_REQUEST);
+        });
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -156,6 +177,11 @@ public class AddEventActivity extends AppCompatActivity {
                     selectedLocationId = selectedLocation.getId();
                     binding.actvLocation.setText(selectedLocation.getName(), false);
                 }
+            }
+        } else if (requestCode == PICK_LOCATION_REQUEST && resultCode == RESULT_OK && data != null) {
+            String locationName = data.getStringExtra("LOCATION_NAME");
+            if (locationName != null) {
+                binding.etLocation.setText(locationName);
             }
         }
     }
@@ -204,22 +230,13 @@ public class AddEventActivity extends AppCompatActivity {
             return;
         }
         if (eventType.isEmpty()) {
-            binding.actvEventType.setError("Vui lòng chọn loại sự kiện");
+            binding.actvEventType.setError("Vui lòng chọn hoặc nhập loại sự kiện");
             return;
         }
         if (date.isEmpty() || date.equals("Chọn ngày")) {
             Toast.makeText(this, "Vui lòng chọn ngày diễn ra", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        int totalGuests = 0;
-        if (!guestsStr.isEmpty()) {
-            try {
-                totalGuests = Integer.parseInt(guestsStr);
-            } catch (NumberFormatException ignored) {}
-        }
-
-        final int finalTotalGuests = totalGuests;
 
         executorService.execute(() -> {
             try {
@@ -247,7 +264,7 @@ public class AddEventActivity extends AppCompatActivity {
                 event.setLocationId(locationId);
                 event.setCreatedBy(userId);
                 event.setBannerUri(selectedBannerUri);
-                event.setTotalGuests(finalTotalGuests);
+                event.setTotalGuests(0);
                 event.setStatus("Đang lên kế hoạch");
                 event.setTotalBudget(0.0);
 
