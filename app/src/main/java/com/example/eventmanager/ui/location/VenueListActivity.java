@@ -2,29 +2,34 @@ package com.example.eventmanager.ui.location;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.example.eventmanager.R;
 import com.example.eventmanager.adapter.VenueAdapter;
 import com.example.eventmanager.databinding.ActivityVenueListBinding;
 import com.example.eventmanager.model.Location;
 import com.example.eventmanager.viewmodel.LocationViewModel;
-import java.util.ArrayList;
-import java.util.List;
 
 public class VenueListActivity extends AppCompatActivity {
+
+    public static final String EXTRA_SELECT_MODE = "SELECT_MODE";
+    public static final String EXTRA_SELECTED_LOCATION = "SELECTED_LOCATION";
 
     private ActivityVenueListBinding binding;
     private VenueAdapter adapter;
     private LocationViewModel viewModel;
+    private boolean isSelectMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityVenueListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        isSelectMode = getIntent().getBooleanExtra(EXTRA_SELECT_MODE, false);
+        if (isSelectMode) {
+            binding.toolbar.setTitle("Chọn địa điểm");
+        }
 
         viewModel = new ViewModelProvider(this).get(LocationViewModel.class);
 
@@ -33,15 +38,8 @@ public class VenueListActivity extends AppCompatActivity {
         observeLocations();
         
         binding.fabAddVenue.setOnClickListener(v -> {
-            // Placeholder: Add a dummy location for testing
-            Location dummy = new Location();
-            dummy.setName("Khách sạn New World");
-            dummy.setAddress("76 Lê Lai, Quận 1, TP.HCM");
-            dummy.setPrice(50000000);
-            dummy.setCapacity(500);
-            dummy.setArea(1000);
-            dummy.setPremium(true);
-            viewModel.insert(dummy);
+            Intent intent = new Intent(this, AddVenueActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -51,9 +49,16 @@ public class VenueListActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         adapter = new VenueAdapter(location -> {
-            Intent intent = new Intent(this, VenueDetailActivity.class);
-            intent.putExtra("LOCATION_DATA", location);
-            startActivity(intent);
+            if (isSelectMode) {
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(EXTRA_SELECTED_LOCATION, location);
+                setResult(RESULT_OK, resultIntent);
+                finish();
+            } else {
+                Intent intent = new Intent(this, VenueDetailActivity.class);
+                intent.putExtra("LOCATION_DATA", location);
+                startActivity(intent);
+            }
         });
         binding.rvVenues.setLayoutManager(new LinearLayoutManager(this));
         binding.rvVenues.setAdapter(adapter);

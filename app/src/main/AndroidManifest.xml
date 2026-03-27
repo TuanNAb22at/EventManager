@@ -51,6 +51,7 @@
         <activity android:name=".ui.location.VenueListActivity" />
         <activity android:name=".ui.location.VenueDetailActivity" />
         <activity android:name=".ui.location.EditVenueActivity" />
+        <activity android:name=".ui.location.AddVenueActivity" />
 
     </application>
 
