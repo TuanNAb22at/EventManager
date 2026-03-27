@@ -23,6 +23,11 @@ public class GuestAdapter extends RecyclerView.Adapter<GuestAdapter.GuestViewHol
         this.onItemClick = onItemClick;
     }
 
+    public void setGuests(List<Guest> guests) {
+        this.guests = guests;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public GuestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
