@@ -35,6 +35,8 @@
         <activity android:name=".ui.event.MyEventActivity" />
         <activity android:name=".ui.guest.AddGuestActivity" />
         <activity android:name=".ui.guest.GuestListActivity" />
+        <activity android:name=".ui.guest.GuestDetailActivity" />
+        <activity android:name=".ui.guest.EditGuestActivity" />
         <activity android:name=".ui.budget.AddBudgetActivity" />
         <activity android:name=".ui.budget.BudgetListActivity" />
         <activity android:name=".ui.budget.BudgetPlanActivity" />

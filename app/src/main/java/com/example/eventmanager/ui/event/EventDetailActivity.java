@@ -12,6 +12,7 @@ import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityEventDetailBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.model.Location;
+import com.example.eventmanager.ui.guest.GuestListActivity;
 import com.example.eventmanager.ui.location.VenueDetailActivity;
 import com.example.eventmanager.ui.location.VenueListActivity;
 import com.example.eventmanager.utils.SessionManager;
@@ -44,6 +45,7 @@ public class EventDetailActivity extends AppCompatActivity {
         setupToolbar();
         observeEvent();
         setupButtons();
+        updateGuestCount();
     }
 
     private void setupToolbar() {
@@ -104,6 +106,13 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void setupButtons() {
+        // Nút Mời (Invite)
+        binding.btnInvite.setOnClickListener(v -> {
+            Intent intent = new Intent(this, GuestListActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            startActivity(intent);
+        });
+
         // Cả nút màu cam và phần khung địa điểm đều mở Chi tiết địa điểm ở chế độ "Sự kiện"
         View.OnClickListener openVenueDetail = v -> {
             if (currentLocation != null) {
@@ -127,6 +136,15 @@ public class EventDetailActivity extends AppCompatActivity {
         binding.btnDelete.setOnClickListener(v -> showDeleteConfirmDialog());
     }
 
+    private void updateGuestCount() {
+        executorService.execute(() -> {
+            int count = AppDatabase.getInstance(this).guestDao().getGuestCountByEventId(eventId);
+            runOnUiThread(() -> {
+                binding.tvAttendees.setText("+" + count + " Tham gia");
+            });
+        });
+    }
+
     private void showDeleteConfirmDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Xóa sự kiện")
@@ -146,6 +164,12 @@ public class EventDetailActivity extends AppCompatActivity {
                 });
             });
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateGuestCount();
     }
 
     @Override

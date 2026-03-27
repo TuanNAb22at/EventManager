@@ -15,6 +15,9 @@ public interface GuestDao {
     @Query("SELECT * FROM guest WHERE id = :id")
     Guest getGuestById(int id);
 
+    @Query("SELECT COUNT(*) FROM guest WHERE eventId = :eventId")
+    int getGuestCountByEventId(int eventId);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertGuest(Guest guest);
 
