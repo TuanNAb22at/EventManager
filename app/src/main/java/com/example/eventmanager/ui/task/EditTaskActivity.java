@@ -11,12 +11,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import com.example.eventmanager.R;
 import com.example.eventmanager.database.AppDatabase;
-import com.example.eventmanager.databinding.ActivityAddTaskBinding;
+import com.example.eventmanager.databinding.ActivityEditTaskBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.model.Task;
 import com.example.eventmanager.model.TaskAssignee;
 import com.example.eventmanager.model.User;
-import com.example.eventmanager.utils.SessionManager;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,42 +26,35 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AddTaskActivity extends AppCompatActivity {
+public class EditTaskActivity extends AppCompatActivity {
 
-    private ActivityAddTaskBinding binding;
-    private final Calendar calendar = Calendar.getInstance();
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-    private int eventId;
+    private ActivityEditTaskBinding binding;
+    private int taskId;
+    private Task currentTask;
     private Event currentEvent;
-    private SessionManager sessionManager;
     private List<User> staffList;
     private User selectedStaff;
+    private final Calendar calendar = Calendar.getInstance();
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAddTaskBinding.inflate(getLayoutInflater());
+        binding = ActivityEditTaskBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        sessionManager = new SessionManager(this);
-        eventId = getIntent().getIntExtra("EVENT_ID", -1);
-
-        if (eventId == -1) {
-            Toast.makeText(this, "Không tìm thấy thông tin sự kiện", Toast.LENGTH_SHORT).show();
+        taskId = getIntent().getIntExtra("TASK_ID", -1);
+        if (taskId == -1) {
             finish();
             return;
         }
 
         setupToolbar();
+        loadTaskAndAssignees();
         setupDateTimePicker();
-        loadEventAndStaffList();
-        setupSaveButton();
+        setupUpdateButtons();
         setupPriorityToggle();
-        
-        // Default selection
-        binding.toggleGroupPriority.check(R.id.btnPriorityMedium);
-        updatePriorityColors(R.id.btnPriorityMedium);
     }
 
     private void setupToolbar() {
@@ -102,42 +94,33 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
-    private void setupDateTimePicker() {
-        binding.tvDeadline.setOnClickListener(v -> {
-            new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, month);
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-                new TimePickerDialog(this, (view1, hourOfDay, minute) -> {
-                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                    calendar.set(Calendar.MINUTE, minute);
-                    binding.tvDeadline.setText(dateFormat.format(calendar.getTime()));
-                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
-
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
-        });
-    }
-
-    private void loadEventAndStaffList() {
+    private void loadTaskAndAssignees() {
         executorService.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
-            currentEvent = db.eventDao().getEventByIdSync(eventId);
+            currentTask = db.taskDao().getTaskById(taskId);
+            if (currentTask != null) {
+                currentEvent = db.eventDao().getEventByIdSync(currentTask.getEventId());
+            }
             staffList = db.userDao().getAllStaffs();
+            List<User> currentAssignees = db.taskAssigneeDao().getAssigneesForTask(taskId);
             
-            runOnUiThread(() -> {
-                if (currentEvent != null) {
-                    if ("Đã kết thúc".equals(currentEvent.getStatus()) || "Đã hủy".equals(currentEvent.getStatus())) {
-                        Toast.makeText(this, "Không thể tạo công việc cho sự kiện " + currentEvent.getStatus().toLowerCase(), Toast.LENGTH_LONG).show();
-                        finish();
-                        return;
+            if (currentTask != null) {
+                runOnUiThread(() -> {
+                    binding.etTaskName.setText(currentTask.getTitle());
+                    binding.tvDeadline.setText(currentTask.getDueDate());
+                    binding.etNotes.setText(currentTask.getNote());
+                    setPriorityToggle(currentTask.getPriority());
+                    
+                    if (!currentAssignees.isEmpty()) {
+                        selectedStaff = currentAssignees.get(0);
+                        binding.tvSelectedAssigneeName.setText(selectedStaff.getFullName());
+                    } else {
+                        binding.tvSelectedAssigneeName.setText("Chọn người làm");
                     }
-                }
-                
-                binding.actvAssignee.setOnClickListener(v -> showSingleSelectDialog());
-                binding.actvAssignee.setFocusable(false);
-                binding.actvAssignee.setCursorVisible(false);
-            });
+
+                    binding.layoutAssignee.setOnClickListener(v -> showSingleSelectDialog());
+                });
+            }
         });
     }
 
@@ -158,15 +141,42 @@ public class AddTaskActivity extends AppCompatActivity {
                 .setTitle("Chọn người thực hiện")
                 .setSingleChoiceItems(staffNames, checkedItem, (dialog, which) -> {
                     selectedStaff = staffList.get(which);
-                    binding.actvAssignee.setText(selectedStaff.getFullName());
+                    binding.tvSelectedAssigneeName.setText(selectedStaff.getFullName());
                     dialog.dismiss();
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
     }
 
-    private void setupSaveButton() {
-        binding.btnSaveTask.setOnClickListener(v -> saveTask());
+    private void setPriorityToggle(int priority) {
+        int buttonId;
+        if (priority == 0) buttonId = R.id.btnPriorityLow;
+        else if (priority == 2) buttonId = R.id.btnPriorityHigh;
+        else buttonId = R.id.btnPriorityMedium;
+        
+        binding.toggleGroupPriority.check(buttonId);
+        updatePriorityColors(buttonId);
+    }
+
+    private void setupDateTimePicker() {
+        binding.tvDeadline.setOnClickListener(v -> {
+            new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                new TimePickerDialog(this, (view1, hourOfDay, minute) -> {
+                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    calendar.set(Calendar.MINUTE, minute);
+                    binding.tvDeadline.setText(dateFormat.format(calendar.getTime()));
+                }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
+
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+        });
+    }
+
+    private void setupUpdateButtons() {
+        binding.btnUpdateChanges.setOnClickListener(v -> updateTask());
     }
 
     private boolean validateData(String title, String deadline) {
@@ -193,13 +203,16 @@ public class AddTaskActivity extends AppCompatActivity {
             return false;
         }
 
-        // Rule về hạn chót
+        // Rule về hạn chót cho Sửa: Cho phép giữ nguyên hạn chót cũ nếu nó đã qua, 
+        // nhưng nếu đổi thì phải chọn ngày tương lai hoặc bằng ngày cũ.
+        // Ở đây áp dụng rule chung cho đơn giản: đổi là phải chọn ngày >= hiện tại.
         try {
             Date deadlineDate = dateFormat.parse(deadline);
             Date now = new Date();
             
-            if (deadlineDate.before(now)) {
-                Toast.makeText(this, "Hạn chót không được nhỏ hơn thời điểm hiện tại", Toast.LENGTH_SHORT).show();
+            // Nếu deadline mới khác deadline cũ thì mới kiểm tra rule ngày hiện tại
+            if (!deadline.equals(currentTask.getDueDate()) && deadlineDate.before(now)) {
+                Toast.makeText(this, "Hạn chót mới không được nhỏ hơn thời điểm hiện tại", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
@@ -228,7 +241,7 @@ public class AddTaskActivity extends AppCompatActivity {
         return true;
     }
 
-    private void saveTask() {
+    private void updateTask() {
         String title = binding.etTaskName.getText().toString().trim();
         String deadline = binding.tvDeadline.getText().toString().trim();
         String note = binding.etNotes.getText().toString().trim();
@@ -237,28 +250,27 @@ public class AddTaskActivity extends AppCompatActivity {
             return;
         }
 
-        int priority = 1; // Medium default
+        currentTask.setTitle(title);
+        currentTask.setDueDate(deadline);
+        currentTask.setNote(note);
+        
+        int priority = 1;
         int checkedId = binding.toggleGroupPriority.getCheckedButtonId();
         if (checkedId == R.id.btnPriorityLow) priority = 0;
         else if (checkedId == R.id.btnPriorityHigh) priority = 2;
-
-        Task task = new Task();
-        task.setEventId(eventId);
-        task.setTitle(title);
-        task.setDueDate(deadline);
-        task.setNote(note);
-        task.setPriority(priority);
-        task.setStatus("TODO");
-        task.setCreatedBy(sessionManager.getUserId());
+        currentTask.setPriority(priority);
 
         executorService.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
-            long taskId = db.taskDao().insertTask(task);
+            db.taskDao().updateTask(currentTask);
             
-            db.taskAssigneeDao().insert(new TaskAssignee((int) taskId, selectedStaff.getId()));
+            db.taskAssigneeDao().deleteByTaskId(taskId);
+            if (selectedStaff != null) {
+                db.taskAssigneeDao().insert(new TaskAssignee(taskId, selectedStaff.getId()));
+            }
 
             runOnUiThread(() -> {
-                Toast.makeText(this, "Đã thêm công việc mới", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Đã cập nhật công việc", Toast.LENGTH_SHORT).show();
                 finish();
             });
         });

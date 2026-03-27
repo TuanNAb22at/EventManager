@@ -34,6 +34,17 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="ShapeAppearance.App.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Thêm style thiếu -->
+    <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
     <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">#F3E5F5</item>
         <item name="android:width">60dp</item>
@@ -55,7 +66,7 @@
 
     <style name="DrawerTextStyle">
         <item name="android:textSize">18sp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:fontFamily" tools:ignore="SpUsage">sans-serif-medium</item>
         <item name="android:textColor">@color/black</item>
     </style>
 </resources>

@@ -12,6 +12,7 @@ import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityEventDetailBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.model.Location;
+import com.example.eventmanager.ui.task.TaskListActivity;
 import com.example.eventmanager.utils.SessionManager;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -103,7 +104,17 @@ public class EventDetailActivity extends AppCompatActivity {
 
     private void setupButtons() {
         binding.btnTasks.setOnClickListener(v -> {
-            // Intent sang TaskListActivity
+            Intent intent = new Intent(this, TaskListActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            intent.putExtra("EVENT_NAME", currentEvent != null ? currentEvent.getName() : "");
+            startActivity(intent);
+        });
+
+        binding.btnSupplier.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EventVendorListActivity.class);
+            intent.putExtra("EVENT_ID", eventId);
+            intent.putExtra("EVENT_NAME", currentEvent != null ? currentEvent.getName() : "");
+            startActivity(intent);
         });
 
         binding.btnDelete.setOnClickListener(v -> showDeleteConfirmDialog());
