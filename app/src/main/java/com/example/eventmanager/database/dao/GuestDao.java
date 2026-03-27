@@ -1,5 +1,6 @@
 package com.example.eventmanager.database.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.*;
 import com.example.eventmanager.model.Guest;
 import java.util.List;
@@ -16,7 +17,10 @@ public interface GuestDao {
     Guest getGuestById(int id);
 
     @Query("SELECT COUNT(*) FROM guest WHERE eventId = :eventId")
-    int getGuestCountByEventId(int eventId);
+    LiveData<Integer> getGuestCountByEventId(int eventId);
+
+    @Query("SELECT COUNT(*) FROM guest WHERE eventId = :eventId")
+    int getGuestCountByEventIdSync(int eventId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertGuest(Guest guest);

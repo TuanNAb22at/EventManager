@@ -77,6 +77,17 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             if (holder.tvLocation != null) holder.tvLocation.setText("Chưa chọn địa điểm");
         }
 
+        // Cập nhật số lượng khách mời
+        executorService.execute(() -> {
+            int count = AppDatabase.getInstance(holder.itemView.getContext())
+                    .guestDao().getGuestCountByEventIdSync(event.getId());
+            holder.itemView.post(() -> {
+                if (holder.tvAttendeeCount != null) {
+                    holder.tvAttendeeCount.setText("+" + count + " người tham gia");
+                }
+            });
+        });
+
         // Parse ngày tháng
         if (event.getStartAt() != null && !event.getStartAt().isEmpty()) {
             try {
@@ -121,6 +132,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         TextView tvDateDay;
         TextView tvDateMonth;
         TextView tvLocation;
+        TextView tvAttendeeCount;
         ImageView ivEventImage;
 
         public EventViewHolder(@NonNull View itemView) {
@@ -129,6 +141,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             tvDateDay = itemView.findViewById(R.id.tvDateDay);
             tvDateMonth = itemView.findViewById(R.id.tvDateMonth);
             tvLocation = itemView.findViewById(R.id.tvLocation);
+            tvAttendeeCount = itemView.findViewById(R.id.tvAttendeeCount);
             ivEventImage = itemView.findViewById(R.id.ivEventImage);
         }
     }

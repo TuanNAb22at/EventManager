@@ -61,6 +61,15 @@ public class UpcomingEventAdapter extends RecyclerView.Adapter<UpcomingEventAdap
             holder.binding.tvLocation.setText("Chưa chọn địa điểm");
         }
         
+        // Cập nhật số lượng khách mời
+        executorService.execute(() -> {
+            int count = AppDatabase.getInstance(holder.itemView.getContext())
+                    .guestDao().getGuestCountByEventIdSync(event.getId());
+            holder.itemView.post(() -> {
+                holder.binding.tvAttendeeCount.setText("+" + count + " người tham gia");
+            });
+        });
+
         // Parse ngày tháng hiển thị
         if (event.getStartAt() != null && event.getStartAt().contains(" ")) {
             try {

@@ -33,6 +33,8 @@
         <activity android:name=".ui.event.EventListActivity" />
         <activity android:name=".ui.event.EventDetailActivity" />
         <activity android:name=".ui.event.MyEventActivity" />
+        <activity android:name=".ui.event.EventVendorListActivity" />
+        <activity android:name=".ui.event.SelectVendorActivity" />
         <activity android:name=".ui.guest.AddGuestActivity" />
         <activity android:name=".ui.guest.GuestListActivity" />
         <activity android:name=".ui.guest.GuestDetailActivity" />
@@ -45,6 +47,8 @@
         <activity android:name=".ui.budget.SelectEventBudgetActivity" />
         <activity android:name=".ui.task.AddTaskActivity" />
         <activity android:name=".ui.task.TaskListActivity" />
+        <activity android:name=".ui.task.EditTaskActivity" />
+        <activity android:name=".ui.task.TaskDetailActivity" />
         <activity android:name=".ui.schedule.AddScheduleActivity" />
         <activity android:name=".ui.schedule.ScheduleListActivity" />
         <activity android:name=".ui.feedback.AddFeedbackActivity" />
