@@ -234,10 +234,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, BudgetEventActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile_menu) {
-                startActivity(new Intent(MainActivity.this, MyEventActivity.class));
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                 return true;
-            } else if (itemId == R.id.nav_venue) {
-                startActivity(new Intent(MainActivity.this, VenueListActivity.class));
+            } else if (itemId == R.id.nav_event) {
+                startActivity(new Intent(MainActivity.this, MyEventActivity.class));
                 return true;
             }
             return true;

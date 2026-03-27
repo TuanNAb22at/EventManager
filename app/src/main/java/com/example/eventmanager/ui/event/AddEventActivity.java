@@ -10,18 +10,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityAddEventBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.model.Location;
-import com.example.eventmanager.ui.location.LocationMapActivity;
 import com.example.eventmanager.utils.SessionManager;
-import com.example.eventmanager.viewmodel.EventViewModel;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,10 +29,18 @@ public class AddEventActivity extends AppCompatActivity {
     private final SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.getDefault());
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SessionManager sessionManager;
-    private EventViewModel eventViewModel;
     private String selectedBannerUri = null;
     private static final int PICK_IMAGE_REQUEST = 1;
-    private static final int PICK_LOCATION_REQUEST = 2;
+
+    private static final String[] EVENT_TYPES = {
+        "Đám cưới (Wedding)",
+        "Sinh nhật (Birthday)",
+        "Hội nghị/Sự kiện doanh nghiệp",
+        "Lễ kỷ niệm",
+        "Tiệc tối (Gala Dinner)",
+        "Buổi hòa nhạc/Show diễn",
+        "Khác"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +49,11 @@ public class AddEventActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         sessionManager = new SessionManager(this);
-        eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
 
         setupToolbar();
         setupDateTimePickers();
         setupImagePicker();
-        setupLocationPicker();
-        observeEventTypes();
+        setupEventTypeSpinner();
 
         binding.btnCreateEvent.setOnClickListener(v -> saveEvent());
     }
@@ -61,28 +62,14 @@ public class AddEventActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
     }
 
-    private void observeEventTypes() {
-        eventViewModel.getAllEventTypes().observe(this, types -> {
-            List<String> eventTypes = new ArrayList<>();
-            if (types != null && !types.isEmpty()) {
-                eventTypes.addAll(types);
-            } else {
-                eventTypes.add("Đám cưới (Wedding)");
-                eventTypes.add("Sinh nhật (Birthday)");
-                eventTypes.add("Hội nghị/Sự kiện doanh nghiệp");
-                eventTypes.add("Lễ kỷ niệm");
-                eventTypes.add("Tiệc tối (Gala Dinner)");
-                eventTypes.add("Buổi hòa nhạc/Show diễn");
-            }
-            
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                    this,
-                    android.R.layout.simple_dropdown_item_1line,
-                    eventTypes
-            );
-            binding.actvEventType.setAdapter(adapter);
-            binding.actvEventType.setOnClickListener(v -> binding.actvEventType.showDropDown());
-        });
+    private void setupEventTypeSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                EVENT_TYPES
+        );
+        binding.actvEventType.setAdapter(adapter);
+        binding.actvEventType.setOnClickListener(v -> binding.actvEventType.showDropDown());
     }
 
     private void setupImagePicker() {
@@ -91,13 +78,6 @@ public class AddEventActivity extends AppCompatActivity {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("image/*");
             startActivityForResult(intent, PICK_IMAGE_REQUEST);
-        });
-    }
-
-    private void setupLocationPicker() {
-        binding.btnOpenMap.setOnClickListener(v -> {
-            Intent intent = new Intent(this, LocationMapActivity.class);
-            startActivityForResult(intent, PICK_LOCATION_REQUEST);
         });
     }
 
@@ -116,11 +96,6 @@ public class AddEventActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     Toast.makeText(this, "Không thể chọn ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }
-        } else if (requestCode == PICK_LOCATION_REQUEST && resultCode == RESULT_OK && data != null) {
-            String locationName = data.getStringExtra("LOCATION_NAME");
-            if (locationName != null) {
-                binding.etLocation.setText(locationName);
             }
         }
     }
@@ -161,6 +136,7 @@ public class AddEventActivity extends AppCompatActivity {
         String startTime = binding.tvStartTime.getText().toString().trim();
         String endTime = binding.tvEndTime.getText().toString().trim();
         String locationName = binding.etLocation.getText().toString().trim();
+        String guestsStr = binding.etTotalGuests.getText().toString().trim();
         String description = binding.etDescription.getText().toString().trim();
 
         if (name.isEmpty()) {
@@ -168,7 +144,7 @@ public class AddEventActivity extends AppCompatActivity {
             return;
         }
         if (eventType.isEmpty()) {
-            binding.actvEventType.setError("Vui lòng chọn hoặc nhập loại sự kiện");
+            binding.actvEventType.setError("Vui lòng chọn loại sự kiện");
             return;
         }
         if (date.isEmpty() || date.equals("Chọn ngày")) {
@@ -176,11 +152,21 @@ public class AddEventActivity extends AppCompatActivity {
             return;
         }
 
+        int totalGuests = 0;
+        if (!guestsStr.isEmpty()) {
+            try {
+                totalGuests = Integer.parseInt(guestsStr);
+            } catch (NumberFormatException ignored) {}
+        }
+
+        final int finalTotalGuests = totalGuests;
+
         executorService.execute(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(this);
                 int userId = sessionManager.getUserId();
 
+                // 1. Xử lý Location
                 Integer locationId = null;
                 if (!locationName.isEmpty()) {
                     Location loc = new Location();
@@ -191,6 +177,7 @@ public class AddEventActivity extends AppCompatActivity {
                     locationId = (int) newLocId;
                 }
 
+                // 2. Tạo và Lưu Event
                 Event event = new Event();
                 event.setName(name);
                 event.setEventType(eventType);
@@ -200,7 +187,7 @@ public class AddEventActivity extends AppCompatActivity {
                 event.setLocationId(locationId);
                 event.setCreatedBy(userId);
                 event.setBannerUri(selectedBannerUri);
-                event.setTotalGuests(0);
+                event.setTotalGuests(finalTotalGuests);
                 event.setStatus("Đang lên kế hoạch");
                 event.setTotalBudget(0.0);
 

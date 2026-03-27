@@ -9,13 +9,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.eventmanager.R;
+import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.model.Event;
+import com.example.eventmanager.model.Location;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
     private List<Event> events = new ArrayList<>();
     private final OnItemClickListener onItemClick;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public interface OnItemClickListener {
         void onItemClick(Event event);
@@ -34,10 +39,8 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Sử dụng item_event_card để đồng bộ giao diện đẹp hơn
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_event_card, parent, false);
         
-        // Điều chỉnh lại width thành MATCH_PARENT để hiển thị tốt trong danh sách dọc
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
         if (layoutParams != null) {
             layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -55,12 +58,26 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             holder.nameTextView.setText(event.getName());
         }
         
-        // Hiển thị trạng thái/địa điểm
-        if (holder.tvLocation != null) {
-            holder.tvLocation.setText(event.getStatus());
+        // Hiển thị tên địa điểm thực tế
+        if (event.getLocationId() != null) {
+            executorService.execute(() -> {
+                Location location = AppDatabase.getInstance(holder.itemView.getContext())
+                        .locationDao().getLocationByIdSync(event.getLocationId());
+                if (location != null) {
+                    holder.itemView.post(() -> {
+                        if (holder.tvLocation != null) holder.tvLocation.setText(location.getName());
+                    });
+                } else {
+                    holder.itemView.post(() -> {
+                        if (holder.tvLocation != null) holder.tvLocation.setText("Địa điểm chưa xác định");
+                    });
+                }
+            });
+        } else {
+            if (holder.tvLocation != null) holder.tvLocation.setText("Chưa chọn địa điểm");
         }
 
-        // Parse ngày tháng (định dạng dd/MM/yyyy HH:mm)
+        // Parse ngày tháng
         if (event.getStartAt() != null && !event.getStartAt().isEmpty()) {
             try {
                 String datePart = event.getStartAt().split(" ")[0];
@@ -75,7 +92,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             }
         }
 
-        // Load ảnh bìa bằng Glide
+        // Load ảnh bìa
         if (event.getBannerUri() != null && !event.getBannerUri().isEmpty()) {
             Glide.with(holder.itemView.getContext())
                 .load(event.getBannerUri())

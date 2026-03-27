@@ -33,6 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="80dp"
+        android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -243,16 +244,26 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/etLocation"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="0dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_input_field"
-                    android:drawableEnd="@drawable/ic_location"
-                    android:hint="Nhập địa điểm hoặc sảnh..."
-                    android:paddingHorizontal="16dp"
-                    android:textSize="14sp" />
+                    app:hintEnabled="false"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/actvLocation"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bg_input_field"
+                        android:drawableEnd="@drawable/ic_location"
+                        android:hint="Chọn địa điểm đã lưu..."
+                        android:paddingHorizontal="16dp"
+                        android:textSize="14sp"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
                     android:id="@+id/btnOpenMap"

@@ -49,7 +49,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnFilter"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
@@ -59,7 +60,8 @@
                         android:textColor="@color/white"
                         app:cornerRadius="18dp" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSortPrice"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
@@ -69,7 +71,8 @@
                         app:strokeColor="#E0E0E0"
                         app:cornerRadius="18dp" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnFilterCapacity"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
