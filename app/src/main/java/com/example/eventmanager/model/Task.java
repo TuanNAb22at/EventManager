@@ -17,13 +17,13 @@ import androidx.room.PrimaryKey;
         @ForeignKey(
             entity = User.class,
             parentColumns = "id",
-            childColumns = "assignedTo",
+            childColumns = "createdBy",
             onDelete = ForeignKey.SET_NULL
         ),
         @ForeignKey(
             entity = User.class,
             parentColumns = "id",
-            childColumns = "createdBy",
+            childColumns = "assignedTo",
             onDelete = ForeignKey.SET_NULL
         )
     }
@@ -38,15 +38,15 @@ public class Task {
     private String title;
     private String dueDate;
 
-    @ColumnInfo(index = true)
-    private Integer assignedTo; // Có thể null (Lỗi 8)
-
-    private int priority;
+    private int priority; // 0: Low, 1: Medium, 2: High
     private String note;
-    private String status;
+    private String status; // "TODO", "DONE" (Overall status)
 
     @ColumnInfo(index = true)
     private Integer createdBy;
+
+    @ColumnInfo(index = true)
+    private Integer assignedTo;
     
     private long createdAt;
     private long updatedAt;
@@ -54,6 +54,7 @@ public class Task {
     public Task() {
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
+        this.status = "TODO";
     }
 
     // Getters and Setters
@@ -65,8 +66,6 @@ public class Task {
     public void setTitle(String title) { this.title = title; }
     public String getDueDate() { return dueDate; }
     public void setDueDate(String dueDate) { this.dueDate = dueDate; }
-    public Integer getAssignedTo() { return assignedTo; }
-    public void setAssignedTo(Integer assignedTo) { this.assignedTo = assignedTo; }
     public int getPriority() { return priority; }
     public void setPriority(int priority) { this.priority = priority; }
     public String getNote() { return note; }
@@ -75,6 +74,8 @@ public class Task {
     public void setStatus(String status) { this.status = status; }
     public Integer getCreatedBy() { return createdBy; }
     public void setCreatedBy(Integer createdBy) { this.createdBy = createdBy; }
+    public Integer getAssignedTo() { return assignedTo; }
+    public void setAssignedTo(Integer assignedTo) { this.assignedTo = assignedTo; }
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
     public long getUpdatedAt() { return updatedAt; }

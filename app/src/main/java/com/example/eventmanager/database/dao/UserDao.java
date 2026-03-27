@@ -9,6 +9,12 @@ public interface UserDao {
     @Query("SELECT * FROM user")
     List<User> getAllUsers();
 
+    @Query("SELECT u.* FROM user u " +
+           "JOIN user_role ur ON u.id = ur.userId " +
+           "JOIN role r ON r.id = ur.roleId " +
+           "WHERE r.roleName = 'STAFF'")
+    List<User> getAllStaffs();
+
     @Query("SELECT * FROM user WHERE id = :id")
     User getUserById(int id);
 
