@@ -12,6 +12,7 @@ import com.example.eventmanager.adapter.EventVendorAdapter;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityEventVendorListBinding;
 import com.example.eventmanager.model.Vendor;
+import com.example.eventmanager.utils.SessionManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +24,7 @@ public class EventVendorListActivity extends AppCompatActivity implements EventV
     private int eventId;
     private String eventName;
     private EventVendorAdapter adapter;
+    private SessionManager sessionManager;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private static final int REQUEST_SELECT_VENDOR = 201;
 
@@ -32,6 +34,7 @@ public class EventVendorListActivity extends AppCompatActivity implements EventV
         binding = ActivityEventVendorListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        sessionManager = new SessionManager(this);
         eventId = getIntent().getIntExtra("EVENT_ID", -1);
         eventName = getIntent().getStringExtra("EVENT_NAME");
 
@@ -75,9 +78,10 @@ public class EventVendorListActivity extends AppCompatActivity implements EventV
 
     private void observeVendors() {
         AppDatabase.getInstance(this).eventVendorDao().getVendorsForEvent(eventId).observe(this, vendors -> {
-            adapter.setVendors(vendors);
-            binding.tvTotalVendors.setText(String.valueOf(vendors.size()));
-            binding.tvPendingVendors.setText("0");
+            if (vendors != null) {
+                adapter.setVendors(vendors);
+                binding.tvTotalVendors.setText(String.valueOf(vendors.size()));
+            }
         });
     }
 
@@ -93,11 +97,6 @@ public class EventVendorListActivity extends AppCompatActivity implements EventV
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
-    }
-
-    @Override
-    public void onManage(Vendor vendor) {
-        Toast.makeText(this, "Quản lý hợp đồng với " + vendor.getName(), Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -113,8 +113,16 @@ public class VendorListActivity extends AppCompatActivity implements VendorAdapt
         int userId = sessionManager.getUserId();
 
         executorService.execute(() -> {
-            List<Vendor> vendors = AppDatabase.getInstance(this).vendorDao()
-                    .searchAndFilterVendors(userId, query, currentFilterType);
+            List<Vendor> vendors;
+            if (sessionManager.isStaff()) {
+                // Staff can see all vendors
+                vendors = AppDatabase.getInstance(this).vendorDao()
+                        .searchAndFilterAllVendors(query, currentFilterType);
+            } else {
+                // Organizer only sees their own created vendors
+                vendors = AppDatabase.getInstance(this).vendorDao()
+                        .searchAndFilterVendors(userId, query, currentFilterType);
+            }
 
             runOnUiThread(() -> {
                 adapter.setVendors(vendors);
@@ -164,5 +172,6 @@ public class VendorListActivity extends AppCompatActivity implements VendorAdapt
 
     @Override
     public void onItemClick(Vendor vendor) {
+        onEdit(vendor);
     }
 }

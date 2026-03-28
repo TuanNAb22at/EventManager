@@ -10,6 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.example.eventmanager.database.dao.*;
 import com.example.eventmanager.database.converter.DateConverter;
 import com.example.eventmanager.model.*;
+import com.example.eventmanager.utils.PasswordUtils;
 import com.example.eventmanager.utils.SessionManager;
 import java.util.concurrent.Executors;
 
@@ -18,9 +19,9 @@ import java.util.concurrent.Executors;
         Event.class, Guest.class, Task.class, User.class, 
         Vendor.class, Budget.class, Location.class, 
         Schedule.class, Feedback.class, Role.class, UserRole.class,
-        EventVendor.class, TaskAssignee.class
+        EventVendor.class, TaskAssignee.class, EventGuest.class
     },
-    version = 20,
+    version = 23,
     exportSchema = false
 )
 @TypeConverters(DateConverter.class)
@@ -41,6 +42,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract UserRoleDao userRoleDao();
     public abstract EventVendorDao eventVendorDao();
     public abstract TaskAssigneeDao taskAssigneeDao();
+    public abstract EventGuestDao eventGuestDao();
 
     public static AppDatabase getInstance(Context context) {
         if (instance == null) {
@@ -59,8 +61,23 @@ public abstract class AppDatabase extends RoomDatabase {
                                 super.onCreate(db);
                                 Executors.newSingleThreadExecutor().execute(() -> {
                                     AppDatabase database = getInstance(context);
+                                    
+                                    // 1. Insert Roles
                                     database.roleDao().insertRole(new Role(SessionManager.ROLE_ORGANIZER));
                                     database.roleDao().insertRole(new Role(SessionManager.ROLE_STAFF));
+                                    
+                                    // 2. Insert Hardcoded Organizer with HASHED password
+                                    User organizer = new User();
+                                    organizer.setFullName("Nguyễn Tuấn (Admin)");
+                                    organizer.setUsername("nguyentuan");
+                                    organizer.setPassword(PasswordUtils.hashPassword("123456")); 
+                                    long userId = database.userDao().insertUser(organizer);
+                                    
+                                    // 3. Assign Role to Organizer
+                                    Role role = database.roleDao().getRoleByName(SessionManager.ROLE_ORGANIZER);
+                                    if (role != null && userId > 0) {
+                                        database.userRoleDao().insertUserRole(new UserRole((int)userId, role.getId()));
+                                    }
                                 });
                             }
                         })

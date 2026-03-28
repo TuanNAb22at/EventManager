@@ -61,10 +61,10 @@ public class UpcomingEventAdapter extends RecyclerView.Adapter<UpcomingEventAdap
             holder.binding.tvLocation.setText("Chưa chọn địa điểm");
         }
         
-        // Cập nhật số lượng khách mời
+        // Cập nhật số lượng khách mời từ bảng trung gian event_guest
         executorService.execute(() -> {
             int count = AppDatabase.getInstance(holder.itemView.getContext())
-                    .guestDao().getGuestCountByEventIdSync(event.getId());
+                    .eventGuestDao().getGuestCountByEventIdSync(event.getId());
             holder.itemView.post(() -> {
                 holder.binding.tvAttendeeCount.setText("+" + count + " người tham gia");
             });

@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
     private List<Task> tasks;
     private OnTaskActionListener listener;
+    private boolean isReadOnly = false;
 
     public interface OnTaskActionListener {
         void onItemClick(Task task);
@@ -29,6 +30,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public TaskAdapter(List<Task> tasks, OnTaskActionListener listener) {
         this.tasks = tasks;
         this.listener = listener;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.isReadOnly = readOnly;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -88,10 +94,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             holder.assigneeLayout.setVisibility(View.GONE);
         }
 
+        if (isReadOnly) {
+            holder.editButton.setVisibility(View.GONE);
+            holder.deleteButton.setVisibility(View.GONE);
+        } else {
+            holder.editButton.setVisibility(View.VISIBLE);
+            holder.deleteButton.setVisibility(View.VISIBLE);
+            holder.editButton.setOnClickListener(v -> listener.onEditClick(task));
+            holder.deleteButton.setOnClickListener(v -> listener.onDeleteClick(task));
+        }
+
         holder.itemView.setOnClickListener(v -> listener.onItemClick(task));
         holder.statusCheckBox.setOnClickListener(v -> listener.onStatusChanged(task, holder.statusCheckBox.isChecked()));
-        holder.editButton.setOnClickListener(v -> listener.onEditClick(task));
-        holder.deleteButton.setOnClickListener(v -> listener.onDeleteClick(task));
     }
 
     @Override

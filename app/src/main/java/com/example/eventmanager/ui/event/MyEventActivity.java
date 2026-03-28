@@ -48,6 +48,14 @@ public class MyEventActivity extends AppCompatActivity {
         observeEventTypes();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     private void setupToolbar() {
         binding.btnBack.setOnClickListener(v -> finish());
     }
@@ -109,12 +117,23 @@ public class MyEventActivity extends AppCompatActivity {
     }
 
     private void observeEvents() {
-        eventViewModel.getMyEvents(sessionManager.getUserId()).observe(this, events -> {
-            if (events != null) {
-                allMyEvents = events;
-                filterAndDisplayEvents();
-            }
-        });
+        if (sessionManager.isStaff()) {
+            // Nhân viên xem toàn bộ sự kiện để quản lý các task được giao
+            eventViewModel.getAllEvents().observe(this, events -> {
+                if (events != null) {
+                    allMyEvents = events;
+                    filterAndDisplayEvents();
+                }
+            });
+        } else {
+            // Người tổ chức xem sự kiện do mình tạo
+            eventViewModel.getMyEvents(sessionManager.getUserId()).observe(this, events -> {
+                if (events != null) {
+                    allMyEvents = events;
+                    filterAndDisplayEvents();
+                }
+            });
+        }
     }
 
     private void observeEventTypes() {

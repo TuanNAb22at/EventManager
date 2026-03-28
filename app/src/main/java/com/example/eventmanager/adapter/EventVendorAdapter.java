@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,15 +14,20 @@ import java.util.List;
 public class EventVendorAdapter extends RecyclerView.Adapter<EventVendorAdapter.ViewHolder> {
     private List<Vendor> vendors;
     private OnEventVendorActionListener listener;
+    private boolean isReadOnly = false;
 
     public interface OnEventVendorActionListener {
         void onRemove(Vendor vendor);
-        void onManage(Vendor vendor);
     }
 
     public EventVendorAdapter(List<Vendor> vendors, OnEventVendorActionListener listener) {
         this.vendors = vendors;
         this.listener = listener;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.isReadOnly = readOnly;
+        notifyDataSetChanged();
     }
 
     public void setVendors(List<Vendor> vendors) {
@@ -42,18 +46,28 @@ public class EventVendorAdapter extends RecyclerView.Adapter<EventVendorAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Vendor vendor = vendors.get(position);
         holder.tvVendorName.setText(vendor.getName());
-        holder.tvServiceType.setText(vendor.getServiceType());
+        holder.tvServiceType.setText(vendor.getServiceType() != null ? vendor.getServiceType().toUpperCase() : "DỊCH VỤ");
+        holder.tvVendorPhone.setText(vendor.getPhone() != null ? vendor.getPhone() : "Chưa có SĐT");
+        holder.tvVendorEmail.setText(vendor.getEmail() != null ? vendor.getEmail() : "Chưa có Email");
         
+        if (vendor.getNote() != null && !vendor.getNote().isEmpty()) {
+            holder.tvNote.setVisibility(View.VISIBLE);
+            holder.tvNote.setText("\"" + vendor.getNote() + "\"");
+        } else {
+            holder.tvNote.setVisibility(View.GONE);
+        }
+
         // Simplified status for now
         holder.tvStatus.setText("ĐÃ XÁC NHẬN");
 
-        holder.btnRemove.setOnClickListener(v -> {
-            if (listener != null) listener.onRemove(vendor);
-        });
-
-        holder.btnManage.setOnClickListener(v -> {
-            if (listener != null) listener.onManage(vendor);
-        });
+        if (isReadOnly) {
+            holder.btnRemove.setVisibility(View.GONE);
+        } else {
+            holder.btnRemove.setVisibility(View.VISIBLE);
+            holder.btnRemove.setOnClickListener(v -> {
+                if (listener != null) listener.onRemove(vendor);
+            });
+        }
     }
 
     @Override
@@ -62,9 +76,7 @@ public class EventVendorAdapter extends RecyclerView.Adapter<EventVendorAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvVendorName, tvServiceType, tvStatus;
-        ImageView ivVendor;
-        View btnManage;
+        TextView tvVendorName, tvServiceType, tvStatus, tvVendorPhone, tvVendorEmail, tvNote;
         ImageButton btnRemove;
 
         public ViewHolder(@NonNull View itemView) {
@@ -72,8 +84,9 @@ public class EventVendorAdapter extends RecyclerView.Adapter<EventVendorAdapter.
             tvVendorName = itemView.findViewById(R.id.tvVendorName);
             tvServiceType = itemView.findViewById(R.id.tvServiceType);
             tvStatus = itemView.findViewById(R.id.tvStatus);
-            ivVendor = itemView.findViewById(R.id.ivVendor);
-            btnManage = itemView.findViewById(R.id.btnManage);
+            tvVendorPhone = itemView.findViewById(R.id.tvVendorPhone);
+            tvVendorEmail = itemView.findViewById(R.id.tvVendorEmail);
+            tvNote = itemView.findViewById(R.id.tvNote);
             btnRemove = itemView.findViewById(R.id.btnRemove);
         }
     }

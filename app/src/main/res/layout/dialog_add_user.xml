@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <EditText
+        android:id="@+id/etFullName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="Tên đầy đủ"
+        android:paddingHorizontal="16dp"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/etUsername"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="Tên đăng nhập"
+        android:paddingHorizontal="16dp"
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Vai trò"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spRole"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_input_field" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Mật khẩu mặc định: 123456"
+        android:textColor="@color/gray_text"
+        android:textSize="12sp" />
+
+</LinearLayout>

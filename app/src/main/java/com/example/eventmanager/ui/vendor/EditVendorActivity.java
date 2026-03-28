@@ -2,12 +2,14 @@ package com.example.eventmanager.ui.vendor;
 
 import android.os.Bundle;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityEditVendorBinding;
 import com.example.eventmanager.model.Vendor;
+import com.example.eventmanager.utils.SessionManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -20,6 +22,7 @@ public class EditVendorActivity extends AppCompatActivity {
     private List<String> existingServiceTypes = new ArrayList<>();
     private Vendor currentVendor;
     private int vendorId;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +30,7 @@ public class EditVendorActivity extends AppCompatActivity {
         binding = ActivityEditVendorBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        sessionManager = new SessionManager(this);
         vendorId = getIntent().getIntExtra("vendor_id", -1);
         if (vendorId == -1) {
             Toast.makeText(this, "Không tìm thấy nhà cung cấp", Toast.LENGTH_SHORT).show();

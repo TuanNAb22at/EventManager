@@ -16,9 +16,11 @@ import com.example.eventmanager.model.Event;
 import com.example.eventmanager.model.Location;
 import com.example.eventmanager.ui.location.VenueListActivity;
 import com.example.eventmanager.utils.SessionManager;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -64,6 +66,12 @@ public class AddEventActivity extends AppCompatActivity {
         binding.btnCreateEvent.setOnClickListener(v -> saveEvent());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadLocationSuggestions();
+    }
+
     private void setupToolbar() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
     }
@@ -88,7 +96,16 @@ public class AddEventActivity extends AppCompatActivity {
     }
 
     private void setupLocationPicker() {
-        // Load danh sách địa điểm đã có để gợi ý
+        binding.btnOpenMap.setOnClickListener(v -> {
+            Intent intent = new Intent(this, VenueListActivity.class);
+            intent.putExtra("SELECT_MODE", true);
+            startActivityForResult(intent, SELECT_LOCATION_REQUEST);
+        });
+        
+        loadLocationSuggestions();
+    }
+
+    private void loadLocationSuggestions() {
         executorService.execute(() -> {
             List<Location> locations = AppDatabase.getInstance(this).locationDao().getAllLocationsSync();
             List<String> locationNames = new ArrayList<>();
@@ -114,13 +131,6 @@ public class AddEventActivity extends AppCompatActivity {
                 });
             });
         });
-
-        // Nút mở danh sách địa điểm (icon bản đồ)
-        binding.btnOpenMap.setOnClickListener(v -> {
-            Intent intent = new Intent(this, VenueListActivity.class);
-            intent.putExtra("SELECT_MODE", true);
-            startActivityForResult(intent, SELECT_LOCATION_REQUEST);
-        });
     }
 
     @Override
@@ -140,10 +150,13 @@ public class AddEventActivity extends AppCompatActivity {
                 }
             }
         } else if (requestCode == SELECT_LOCATION_REQUEST && resultCode == RESULT_OK && data != null) {
-            selectedLocationId = data.getIntExtra("LOCATION_ID", -1);
+            int locId = data.getIntExtra("LOCATION_ID", -1);
             String locationName = data.getStringExtra("LOCATION_NAME");
-            if (selectedLocationId != -1) {
+            if (locId != -1) {
+                selectedLocationId = locId;
                 binding.etLocation.setText(locationName);
+            } else {
+                selectedLocationId = null;
             }
         }
     }
@@ -189,14 +202,43 @@ public class AddEventActivity extends AppCompatActivity {
 
         if (name.isEmpty()) {
             binding.etEventName.setError("Vui lòng nhập tên sự kiện");
+            binding.etEventName.requestFocus();
             return;
         }
         if (eventType.isEmpty()) {
             binding.actvEventType.setError("Vui lòng chọn loại sự kiện");
+            binding.actvEventType.requestFocus();
             return;
         }
         if (date.isEmpty() || date.equals("Chọn ngày")) {
             Toast.makeText(this, "Vui lòng chọn ngày diễn ra", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (startTime.isEmpty() || startTime.equals("Giờ bắt đầu")) {
+            Toast.makeText(this, "Vui lòng chọn giờ bắt đầu", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (endTime.isEmpty() || endTime.equals("Giờ kết thúc")) {
+            Toast.makeText(this, "Vui lòng chọn giờ kết thúc", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validate start time < end time
+        try {
+            Date start = timeFormatter.parse(startTime);
+            Date end = timeFormatter.parse(endTime);
+            if (start != null && end != null && !end.after(start)) {
+                Toast.makeText(this, "Giờ kết thúc phải sau giờ bắt đầu", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (ParseException e) {
+            Toast.makeText(this, "Định dạng thời gian không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (locationName.isEmpty()) {
+            binding.etLocation.setError("Vui lòng chọn hoặc nhập địa điểm");
+            binding.etLocation.requestFocus();
             return;
         }
 
@@ -204,7 +246,16 @@ public class AddEventActivity extends AppCompatActivity {
         if (!guestsStr.isEmpty()) {
             try {
                 totalGuests = Integer.parseInt(guestsStr);
-            } catch (NumberFormatException ignored) {}
+                if (totalGuests < 0) {
+                    binding.etTotalGuests.setError("Số lượng khách không thể âm");
+                    binding.etTotalGuests.requestFocus();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                binding.etTotalGuests.setError("Số lượng khách không hợp lệ");
+                binding.etTotalGuests.requestFocus();
+                return;
+            }
         }
 
         final int finalTotalGuests = totalGuests;
@@ -250,7 +301,7 @@ public class AddEventActivity extends AppCompatActivity {
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Lỗi khi lưu sự kiện: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
             }
         });

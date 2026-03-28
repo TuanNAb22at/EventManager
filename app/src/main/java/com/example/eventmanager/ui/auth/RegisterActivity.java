@@ -3,7 +3,7 @@ package com.example.eventmanager.ui.auth;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.eventmanager.databinding.ActivityRegisterBinding;
 import com.example.eventmanager.database.AppDatabase;
@@ -19,7 +19,6 @@ import java.util.concurrent.Executors;
 public class RegisterActivity extends AppCompatActivity {
     private ActivityRegisterBinding binding;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private String selectedRole = "";
     private boolean isProcessing = false;
 
     @Override
@@ -28,23 +27,8 @@ public class RegisterActivity extends AppCompatActivity {
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setupRoleDropdown();
-
         binding.btnRegister.setOnClickListener(v -> handleRegister());
         binding.tvLogin.setOnClickListener(v -> finish());
-    }
-
-    private void setupRoleDropdown() {
-        // Cập nhật: Chỉ để lại ORGANIZER và STAFF trong phần đăng ký
-        String[] displayRoles = {"Người tổ chức", "Nhân viên"};
-        String[] actualRoles = {SessionManager.ROLE_ORGANIZER, SessionManager.ROLE_STAFF};
-        
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, displayRoles);
-        binding.actvRole.setAdapter(adapter);
-        
-        binding.actvRole.setOnItemClickListener((parent, view, position, id) -> {
-            selectedRole = actualRoles[position];
-        });
     }
 
     private void handleRegister() {
@@ -63,12 +47,6 @@ public class RegisterActivity extends AppCompatActivity {
             binding.tilUsername.setError("Vui lòng nhập tên đăng nhập");
             return;
         }
-        if (TextUtils.isEmpty(selectedRole)) {
-            binding.tilRole.setError("Vui lòng chọn vai trò");
-            return;
-        } else {
-            binding.tilRole.setError(null);
-        }
         if (TextUtils.isEmpty(password) || password.length() < 6) {
             binding.tilPassword.setError("Mật khẩu phải từ 6 ký tự");
             return;
@@ -83,9 +61,6 @@ public class RegisterActivity extends AppCompatActivity {
         executorService.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
             try {
-                // Đảm bảo các role cơ bản tồn tại trong database
-                ensureRolesExist(db);
-
                 // Thao tác 1: Check user tồn tại
                 User existingUser = db.userDao().getUserByUsername(username);
                 
@@ -95,14 +70,12 @@ public class RegisterActivity extends AppCompatActivity {
                         showCustomMessage(binding.getRoot(), "Tên đăng nhập này đã tồn tại!", true);
                     });
                 } else {
-                    // Thao tác 2: Lấy Role ID
-                    Role role = db.roleDao().getRoleByName(selectedRole);
+                    // Thao tác 2: Lấy Role ID cho STAFF (mặc định cho đăng ký mới)
+                    Role role = db.roleDao().getRoleByName(SessionManager.ROLE_STAFF);
                     if (role == null) {
-                        runOnUiThread(() -> {
-                            setLoadingState(false);
-                            showCustomMessage(binding.getRoot(), "Lỗi: Vai trò '" + selectedRole + "' không tồn tại trong hệ thống", true);
-                        });
-                        return;
+                        // Nếu chưa có role trong DB, tự tạo
+                        db.roleDao().insertRole(new Role(SessionManager.ROLE_STAFF));
+                        role = db.roleDao().getRoleByName(SessionManager.ROLE_STAFF);
                     }
 
                     // Thao tác 3: Insert user mới
@@ -110,13 +83,13 @@ public class RegisterActivity extends AppCompatActivity {
                     User newUser = new User(fullName, username, hashedPw);
                     long userId = db.userDao().insertUser(newUser);
                     
-                    // Thao tác 4: Gán role cho user
-                    if (userId > 0) {
+                    // Thao tác 4: Gán role STAFF cho user
+                    if (userId > 0 && role != null) {
                         db.userRoleDao().insertUserRole(new UserRole((int) userId, role.getId()));
                     }
 
                     runOnUiThread(() -> {
-                        showCustomMessage(binding.getRoot(), "Đăng ký thành công!", false);
+                        showCustomMessage(binding.getRoot(), "Đăng ký nhân viên thành công!", false);
                         binding.getRoot().postDelayed(this::finish, 1200);
                     });
                 }
@@ -133,15 +106,6 @@ public class RegisterActivity extends AppCompatActivity {
         isProcessing = isLoading;
         binding.btnRegister.setEnabled(!isLoading);
         binding.btnRegister.setText(isLoading ? "ĐANG XỬ LÝ..." : "ĐĂNG KÝ");
-    }
-
-    private void ensureRolesExist(AppDatabase db) {
-        String[] roles = {SessionManager.ROLE_ORGANIZER, SessionManager.ROLE_STAFF};
-        for (String roleName : roles) {
-            if (db.roleDao().getRoleByName(roleName) == null) {
-                db.roleDao().insertRole(new Role(roleName));
-            }
-        }
     }
 
     private void showCustomMessage(View view, String message, boolean isError) {

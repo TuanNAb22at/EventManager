@@ -14,6 +14,7 @@ import com.example.eventmanager.adapter.GuestAdapter;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityGuestListBinding;
 import com.example.eventmanager.model.Guest;
+import com.example.eventmanager.utils.SessionManager;
 import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class GuestListActivity extends AppCompatActivity {
     private ActivityGuestListBinding binding;
     private GuestAdapter adapter;
     private int eventId;
+    private SessionManager sessionManager;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private List<Guest> invitedGuests = new ArrayList<>();
     private List<Guest> allSystemGuests = new ArrayList<>();
@@ -35,6 +37,7 @@ public class GuestListActivity extends AppCompatActivity {
         binding = ActivityGuestListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        sessionManager = new SessionManager(this);
         eventId = getIntent().getIntExtra("EVENT_ID", -1);
         if (eventId == -1) {
             finish();
@@ -69,7 +72,7 @@ public class GuestListActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
-                // Chỉ hiện nút + khi ở tab "Tất cả khách" (vị trí 1)
+                // Hiện nút + khi ở tab "Tất cả khách" cho cả Quản lý và Nhân viên
                 binding.fabAddGuest.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
                 updateListBasedOnTab(position);
             }
@@ -81,14 +84,33 @@ public class GuestListActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
         
-        // Mặc định tab 0 không hiện nút +
+        // Mặc định ẩn nút + vì ban đầu ở tab 0
         binding.fabAddGuest.setVisibility(View.GONE);
     }
 
     private void loadData() {
         executorService.execute(() -> {
-            invitedGuests = AppDatabase.getInstance(this).guestDao().getGuestsByEventId(eventId);
-            allSystemGuests = AppDatabase.getInstance(this).guestDao().getAllGuests();
+            AppDatabase db = AppDatabase.getInstance(this);
+            // Lấy danh sách khách mời cho sự kiện này
+            invitedGuests = db.eventGuestDao().getGuestsByEventId(eventId);
+            // Gán nhãn "Đã mời" cho hiển thị
+            for (Guest g : invitedGuests) {
+                g.setStatus("Đã mời");
+            }
+
+            // Lấy toàn bộ khách trong hệ thống
+            allSystemGuests = db.guestDao().getAllGuests();
+            // Đối với tab Tất cả, chúng ta có thể kiểm tra xem ai đã được mời vào sự kiện này chưa
+            for (Guest g : allSystemGuests) {
+                boolean isInvited = false;
+                for (Guest invited : invitedGuests) {
+                    if (invited.getId() == g.getId()) {
+                        isInvited = true;
+                        break;
+                    }
+                }
+                g.setStatus(isInvited ? "Đã mời" : "Chưa mời");
+            }
             
             runOnUiThread(() -> {
                 updateListBasedOnTab(binding.tabLayout.getSelectedTabPosition());
@@ -137,7 +159,7 @@ public class GuestListActivity extends AppCompatActivity {
     private void saveGuestToSystem(String name, String email, String phone) {
         executorService.execute(() -> {
             Guest guest = new Guest();
-            guest.setEventId(null); // Tạo mới chỉ vào "Tất cả khách", chưa mời vào sự kiện nào
+            guest.setEventId(null);
             guest.setName(name);
             guest.setEmail(email);
             guest.setPhone(phone);

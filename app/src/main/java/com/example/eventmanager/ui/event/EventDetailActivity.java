@@ -44,7 +44,20 @@ public class EventDetailActivity extends AppCompatActivity {
         setupToolbar();
         observeEvent();
         setupButtons();
+        checkUserPermissions();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         observeGuestCount();
+    }
+
+    private void checkUserPermissions() {
+        if (sessionManager.isStaff()) {
+            binding.btnEdit.setVisibility(View.GONE);
+            binding.btnDelete.setVisibility(View.GONE);
+        }
     }
 
     private void setupToolbar() {
@@ -66,10 +79,11 @@ public class EventDetailActivity extends AppCompatActivity {
     }
 
     private void observeGuestCount() {
-        AppDatabase.getInstance(this).guestDao().getGuestCountByEventId(eventId).observe(this, count -> {
-            if (count != null) {
+        executorService.execute(() -> {
+            int count = AppDatabase.getInstance(this).eventGuestDao().getGuestCountByEventIdSync(eventId);
+            runOnUiThread(() -> {
                 binding.tvAttendees.setText(count + " Tham gia");
-            }
+            });
         });
     }
 
