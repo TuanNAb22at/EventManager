@@ -83,8 +83,8 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Chỉnh sửa hồ sơ"
+            android:layout_marginTop="24dp"
+            android:text="Sửa hồ sơ"
             android:textAllCaps="false"
             android:textColor="@color/primary_blue"
             app:cornerRadius="12dp"
@@ -145,4 +145,3 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
-

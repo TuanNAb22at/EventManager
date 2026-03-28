@@ -57,14 +57,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
+                android:gravity="center"
                 android:orientation="horizontal"
                 app:layout_constraintTop_toBottomOf="@id/tvEventName">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
+                    android:layout_width="200dp"
                     android:layout_height="100dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
                     app:cardCornerRadius="50dp"
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="#1AFFFFFF">
@@ -77,7 +76,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="TỔNG SỐ"
+                            android:text="TỔNG SỐ NHÀ CUNG CẤP"
                             android:textColor="#CCFFFFFF"
                             android:textSize="10sp"
                             android:textStyle="bold" />
@@ -87,39 +86,7 @@
                             android:layout_height="wrap_content"
                             android:text="0"
                             android:textColor="@color/white"
-                            android:textSize="28sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
-                    android:layout_height="100dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    app:cardCornerRadius="50dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#33FFD54F">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:orientation="vertical">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="CẦN XỬ LÝ"
-                            android:textColor="#FF8F00"
-                            android:textSize="10sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:id="@+id/tvPendingVendors"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="#FF8F00"
-                            android:textSize="28sp"
+                            android:textSize="32sp"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -144,17 +111,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Đã Giao Việc"
+                    android:text="Danh sách cộng tác"
                     android:textColor="@color/black"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:text="Sắp xếp: Ngày"
-                    android:textColor="@color/gray_text"
-                    android:textSize="12sp" />
             </RelativeLayout>
 
             <androidx.recyclerview.widget.RecyclerView

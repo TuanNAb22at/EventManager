@@ -68,6 +68,9 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
         binding.tvEventTag.setText(eventName != null ? eventName : "Lập kế hoạch");
 
         adapter = new TaskAdapter(new ArrayList<>(), this);
+        if (sessionManager.isStaff()) {
+            adapter.setReadOnly(true);
+        }
         binding.rvTasks.setLayoutManager(new LinearLayoutManager(this));
         binding.rvTasks.setAdapter(adapter);
 
@@ -128,30 +131,33 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
 
     private void applyFilters() {
         String query = binding.etSearchTasks.getText().toString().toLowerCase().trim();
-        int statusFilter = binding.chipGroupStatus.getCheckedChipId();
-        int priorityFilter = binding.chipGroupPriority.getCheckedChipId();
 
         executorService.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
             List<Task> filtered = allTasks.stream().filter(task -> {
+                // Phân quyền cho Staff: Chỉ thấy task được giao cho mình thông qua bảng TaskAssignee
+                if (sessionManager.isStaff()) {
+                    List<User> assignees = db.taskAssigneeDao().getAssigneesForTask(task.getId());
+                    boolean isMine = assignees.stream().anyMatch(u -> u.getId() == sessionManager.getUserId());
+                    if (!isMine) {
+                        return false;
+                    }
+                }
+
                 boolean matchesSearch = task.getTitle().toLowerCase().contains(query);
                 
                 boolean matchesStatus = true;
-                if (statusFilter == binding.chipToDo.getId()) matchesStatus = !"DONE".equals(task.getStatus());
-                else if (statusFilter == binding.chipDone.getId()) matchesStatus = "DONE".equals(task.getStatus());
+                int checkedStatusId = binding.chipGroupStatus.getCheckedChipId();
+                if (checkedStatusId == binding.chipToDo.getId()) matchesStatus = !"DONE".equals(task.getStatus());
+                else if (checkedStatusId == binding.chipDone.getId()) matchesStatus = "DONE".equals(task.getStatus());
 
                 boolean matchesPriority = true;
-                if (priorityFilter == binding.chipHigh.getId()) matchesPriority = task.getPriority() == 2;
-                else if (priorityFilter == binding.chipMedium.getId()) matchesPriority = task.getPriority() == 1;
-                else if (priorityFilter == binding.chipLow.getId()) matchesPriority = task.getPriority() == 0;
+                int checkedPriorityId = binding.chipGroupPriority.getCheckedChipId();
+                if (checkedPriorityId == binding.chipHigh.getId()) matchesPriority = task.getPriority() == 2;
+                else if (checkedPriorityId == binding.chipMedium.getId()) matchesPriority = task.getPriority() == 1;
+                else if (checkedPriorityId == binding.chipLow.getId()) matchesPriority = task.getPriority() == 0;
 
-                boolean matchesStaffRole = true;
-                if (sessionManager.isStaff()) {
-                    List<User> assignees = db.taskAssigneeDao().getAssigneesForTask(task.getId());
-                    matchesStaffRole = assignees.stream().anyMatch(u -> u.getId() == sessionManager.getUserId());
-                }
-
-                return matchesSearch && matchesStatus && matchesPriority && matchesStaffRole;
+                return matchesSearch && matchesStatus && matchesPriority;
             }).collect(Collectors.toList());
 
             runOnUiThread(() -> adapter.setTasks(filtered));
@@ -167,33 +173,48 @@ public class TaskListActivity extends AppCompatActivity implements TaskAdapter.O
 
     @Override
     public void onStatusChanged(Task task, boolean isDone) {
-        if (sessionManager.isStaff()) {
-            executorService.execute(() -> {
-                List<User> assignees = AppDatabase.getInstance(this).taskAssigneeDao().getAssigneesForTask(task.getId());
-                boolean isMine = assignees.stream().anyMatch(u -> u.getId() == sessionManager.getUserId());
-                
-                runOnUiThread(() -> {
+        executorService.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            List<User> assignees = db.taskAssigneeDao().getAssigneesForTask(task.getId());
+            boolean isMine = assignees.stream().anyMatch(u -> u.getId() == sessionManager.getUserId());
+
+            runOnUiThread(() -> {
+                if (sessionManager.isStaff()) {
                     if (!isMine) {
                         Toast.makeText(this, "Bạn không thể cập nhật công việc của người khác", Toast.LENGTH_SHORT).show();
                         adapter.notifyDataSetChanged();
-                    } else if (!isDone) {
+                        return;
+                    }
+
+                    if (!isDone) {
                         Toast.makeText(this, "Chỉ Quản lý mới có thể mở lại công việc", Toast.LENGTH_SHORT).show();
                         adapter.notifyDataSetChanged();
-                    } else {
-                        task.setStatus("DONE");
-                        updateTaskStatus(task);
+                        return;
                     }
-                });
+
+                    // Hành động xác nhận cho nhân viên
+                    new AlertDialog.Builder(this)
+                            .setTitle("Xác nhận hoàn thành")
+                            .setMessage("Bạn có chắc chắn muốn đánh dấu công việc này là đã hoàn thành?")
+                            .setPositiveButton("Xác nhận", (dialog, which) -> {
+                                task.setStatus("DONE");
+                                updateTaskStatus(task);
+                            })
+                            .setNegativeButton("Hủy", (dialog, which) -> adapter.notifyDataSetChanged())
+                            .setCancelable(false)
+                            .show();
+                } else {
+                    task.setStatus(isDone ? "DONE" : "TODO");
+                    updateTaskStatus(task);
+                }
             });
-        } else {
-            task.setStatus(isDone ? "DONE" : "TODO");
-            updateTaskStatus(task);
-        }
+        });
     }
 
     private void updateTaskStatus(Task task) {
         executorService.execute(() -> {
-            AppDatabase.getInstance(this).taskDao().updateTask(task);
+            AppDatabase DB = AppDatabase.getInstance(this);
+            DB.taskDao().updateTask(task);
         });
     }
 

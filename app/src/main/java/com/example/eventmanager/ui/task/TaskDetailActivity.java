@@ -173,14 +173,29 @@ public class TaskDetailActivity extends AppCompatActivity {
     }
 
     private void toggleTaskStatus() {
-        if (sessionManager.isStaff() && "DONE".equals(currentTask.getStatus())) {
-             Toast.makeText(this, "Chỉ Quản lý mới có thể mở lại công việc", Toast.LENGTH_SHORT).show();
-             return;
-        }
+        if (sessionManager.isStaff()) {
+            if ("DONE".equals(currentTask.getStatus())) {
+                Toast.makeText(this, "Chỉ Quản lý mới có thể mở lại công việc", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        String newStatus = "DONE".equals(currentTask.getStatus()) ? "TODO" : "DONE";
+            // Hành động xác nhận cho nhân viên trong màn hình chi tiết
+            new AlertDialog.Builder(this)
+                    .setTitle("Xác nhận hoàn thành")
+                    .setMessage("Bạn có chắc chắn muốn đánh dấu công việc này là đã hoàn thành?")
+                    .setPositiveButton("Xác nhận", (dialog, which) -> {
+                        updateTaskStatus("DONE");
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
+        } else {
+            String newStatus = "DONE".equals(currentTask.getStatus()) ? "TODO" : "DONE";
+            updateTaskStatus(newStatus);
+        }
+    }
+
+    private void updateTaskStatus(String newStatus) {
         currentTask.setStatus(newStatus);
-        
         executorService.execute(() -> {
             AppDatabase.getInstance(this).taskDao().updateTask(currentTask);
             runOnUiThread(() -> {

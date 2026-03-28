@@ -5,9 +5,12 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -30,6 +33,7 @@ import com.example.eventmanager.ui.event.EventDetailActivity;
 import com.example.eventmanager.ui.event.MyEventActivity;
 import com.example.eventmanager.ui.location.VenueListActivity;
 import com.example.eventmanager.ui.profile.ProfileActivity;
+import com.example.eventmanager.ui.profile.UserListActivity;
 import com.example.eventmanager.ui.vendor.VendorListActivity;
 import com.example.eventmanager.utils.SessionManager;
 import com.example.eventmanager.viewmodel.EventViewModel;
@@ -76,6 +80,40 @@ public class MainActivity extends AppCompatActivity {
         setupFab();
         observeEvents();
         observeEventTypes();
+        checkUserPermissions();
+    }
+
+    private void checkUserPermissions() {
+        if (sessionManager.isStaff()) {
+            binding.fabAdd.setVisibility(View.GONE);
+
+            // Ẩn menu Ngân sách và Placeholder ở thanh điều hướng dưới
+            Menu menu = binding.bottomNavigationView.getMenu();
+            MenuItem budgetItem = menu.findItem(R.id.nav_budget);
+            if (budgetItem != null) {
+                budgetItem.setVisible(false);
+            }
+            
+            MenuItem placeholderItem = menu.findItem(R.id.nav_placeholder);
+            if (placeholderItem != null) {
+                placeholderItem.setVisible(false);
+            }
+
+            // Ẩn menu Quản lý tài khoản trong Drawer
+            Menu drawerMenu = binding.navigationView.getMenu();
+            MenuItem manageAccountItem = drawerMenu.findItem(R.id.nav_manage_accounts);
+            if (manageAccountItem != null) {
+                manageAccountItem.setVisible(false);
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void initUI() {
@@ -203,6 +241,8 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.nav_profile) {
                 startActivity(new Intent(this, ProfileActivity.class));
+            } else if (id == R.id.nav_manage_accounts) {
+                startActivity(new Intent(this, UserListActivity.class));
             } else if (id == R.id.nav_change_password) {
                 startActivity(new Intent(this, ChangePasswordActivity.class));
             } else if (id == R.id.nav_logout) {
@@ -231,6 +271,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, VendorListActivity.class));
                 return true;
             } else if (itemId == R.id.nav_budget) {
+                if (sessionManager.isStaff()) {
+                    Toast.makeText(this, "Bạn không có quyền xem mục này", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
                 startActivity(new Intent(MainActivity.this, BudgetEventActivity.class));
                 return true;
             } else if (itemId == R.id.nav_profile_menu) {

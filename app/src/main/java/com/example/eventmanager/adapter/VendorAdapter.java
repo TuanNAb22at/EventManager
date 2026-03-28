@@ -17,6 +17,7 @@ import java.util.List;
 public class VendorAdapter extends RecyclerView.Adapter<VendorAdapter.VendorViewHolder> {
     private List<Vendor> vendors;
     private OnVendorActionListener actionListener;
+    private boolean isReadOnly = false;
 
     public static final String[] VENDOR_COLORS = {
         "#FF7043", "#FFB74D", "#26A69A", "#5C6BC0", "#66BB6A",
@@ -31,6 +32,11 @@ public class VendorAdapter extends RecyclerView.Adapter<VendorAdapter.VendorView
 
     public void setOnVendorActionListener(OnVendorActionListener actionListener) {
         this.actionListener = actionListener;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.isReadOnly = readOnly;
+        notifyDataSetChanged();
     }
 
     public VendorAdapter(List<Vendor> vendors) {
@@ -85,9 +91,19 @@ public class VendorAdapter extends RecyclerView.Adapter<VendorAdapter.VendorView
             holder.tvNote.setVisibility(View.GONE);
         }
 
+        if (isReadOnly) {
+            holder.btnEdit.setVisibility(View.GONE);
+            holder.btnDelete.setVisibility(View.GONE);
+        } else {
+            holder.btnEdit.setVisibility(View.VISIBLE);
+            holder.btnDelete.setVisibility(View.VISIBLE);
+            if (actionListener != null) {
+                holder.btnEdit.setOnClickListener(v -> actionListener.onEdit(vendor));
+                holder.btnDelete.setOnClickListener(v -> actionListener.onDelete(vendor));
+            }
+        }
+
         if (actionListener != null) {
-            holder.btnEdit.setOnClickListener(v -> actionListener.onEdit(vendor));
-            holder.btnDelete.setOnClickListener(v -> actionListener.onDelete(vendor));
             holder.itemView.setOnClickListener(v -> actionListener.onItemClick(vendor));
         }
     }

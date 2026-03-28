@@ -27,6 +27,11 @@ public interface VendorDao {
            "ORDER BY createdAt DESC")
     List<Vendor> searchAndFilterVendors(int userId, String query, String serviceType);
 
+    @Query("SELECT * FROM vendor WHERE (name LIKE :query OR phone LIKE :query OR email LIKE :query) " +
+           "AND (:serviceType = '' OR serviceType = :serviceType) " +
+           "ORDER BY createdAt DESC")
+    List<Vendor> searchAndFilterAllVendors(String query, String serviceType);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertVendor(Vendor vendor);
 

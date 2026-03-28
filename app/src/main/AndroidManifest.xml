@@ -25,6 +25,7 @@
         <activity android:name=".ui.auth.ChangePasswordActivity" />
         <activity android:name=".ui.main.MainActivity" />
         <activity android:name=".ui.profile.ProfileActivity" />
+        <activity android:name=".ui.profile.UserListActivity" />
         <activity android:name=".ui.vendor.AddVendorActivity" />
         <activity android:name=".ui.vendor.EditVendorActivity" />
         <activity android:name=".ui.vendor.VendorListActivity" />

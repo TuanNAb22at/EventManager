@@ -137,8 +137,16 @@ public class SelectVendorActivity extends AppCompatActivity implements SelectVen
         int userId = sessionManager.getUserId();
 
         executorService.execute(() -> {
-            List<Vendor> vendors = AppDatabase.getInstance(this).vendorDao()
-                    .searchAndFilterVendors(userId, query, currentFilterType);
+            List<Vendor> vendors;
+            if (sessionManager.isStaff()) {
+                // Staff can see all vendors to select
+                vendors = AppDatabase.getInstance(this).vendorDao()
+                        .searchAndFilterAllVendors(query, currentFilterType);
+            } else {
+                // Organizer only sees their own created vendors to select
+                vendors = AppDatabase.getInstance(this).vendorDao()
+                        .searchAndFilterVendors(userId, query, currentFilterType);
+            }
 
             runOnUiThread(() -> {
                 adapter.setVendors(vendors);
@@ -158,8 +166,6 @@ public class SelectVendorActivity extends AppCompatActivity implements SelectVen
 
     private void updateSelectedCount(int count) {
         binding.tvSelectedCount.setText(count + " Nhà cung cấp đã chọn");
-        // binding.btnConfirm.setEnabled(count > 0);
-        // binding.btnConfirm.setAlpha(count > 0 ? 1.0f : 0.5f);
     }
 
     private void saveSelections() {
