@@ -58,6 +58,7 @@
                         android:textSize="12sp" />
 
                     <TextView
+                        android:id="@+id/tvCurrentLocation"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:drawableEnd="@drawable/ic_arrow_down"
@@ -182,12 +183,13 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:listitem="@layout/item_event_card" />
 
+                <!-- Dashboard Section (Đã đổi từ Mời bạn bè) -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
-                    app:cardBackgroundColor="#E0F7FA"
-                    app:cardCornerRadius="20dp"
+                    app:cardBackgroundColor="#F0F4FF"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="0dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -201,45 +203,50 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@id/ivGift"
+                            app:layout_constraintEnd_toStartOf="@id/ivDashboardIcon"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent">
 
                             <TextView
+                                android:id="@+id/tvDashboardTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Mời bạn bè"
+                                android:text="Tiến độ công việc"
                                 android:textColor="@color/black"
                                 android:textSize="18sp"
                                 android:textStyle="bold" />
 
                             <TextView
+                                android:id="@+id/tvDashboardSubtitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="Nhận voucher khi bạn bè tham gia"
+                                android:text="Đang tải dữ liệu..."
                                 android:textColor="@color/gray_text"
                                 android:textSize="12sp" />
 
                             <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnInvite"
+                                android:id="@+id/btnDashboardAction"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="16dp"
-                                android:backgroundTint="@color/accent_cyan"
-                                android:text="MỜI NGAY"
+                                android:backgroundTint="@color/primary_blue"
+                                android:text="KIỂM TRA NGAY"
                                 android:textSize="12sp"
+                                android:paddingHorizontal="24dp"
                                 app:cornerRadius="24dp" />
                         </LinearLayout>
 
                         <ImageView
-                            android:id="@+id/ivGift"
+                            android:id="@+id/ivDashboardIcon"
                             android:layout_width="80dp"
                             android:layout_height="80dp"
-                            android:src="@drawable/img_gift"
+                            android:src="@drawable/ic_calendar"
+                            android:alpha="0.8"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:tint="@color/primary_blue" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>

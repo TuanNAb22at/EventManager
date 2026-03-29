@@ -2,6 +2,8 @@ package com.example.eventmanager.ui.budget;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -16,6 +18,7 @@ import com.example.eventmanager.databinding.ActivitySelectEventBudgetBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.utils.SessionManager;
 import com.example.eventmanager.viewmodel.EventViewModel;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -28,6 +31,7 @@ public class SelectEventBudgetActivity extends AppCompatActivity {
     private EventViewModel eventViewModel;
     private SessionManager sessionManager;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,31 +69,51 @@ public class SelectEventBudgetActivity extends AppCompatActivity {
 
     private void filterAndDisplayEvents(List<Event> events) {
         if (events == null) return;
-        
-        // Chỉ lấy những sự kiện Đang lên kế hoạch VÀ chưa có ngân sách (totalBudget == 0)
         List<Event> filteredList = events.stream()
                 .filter(e -> "Đang lên kế hoạch".equals(e.getStatus()) && e.getTotalBudget() <= 0)
                 .collect(Collectors.toList());
-        
         adapter.setEvents(filteredList);
         binding.tvEmptyState.setVisibility(filteredList.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void showAddBudgetDialog(Event event) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Nhập ngân sách cho: " + event.getName());
-
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_budget_event, null);
         builder.setView(dialogView);
 
-        // Ẩn spinner vì đã chọn sự kiện rồi
-        dialogView.findViewById(R.id.spinnerEvents).setVisibility(View.GONE);
-        dialogView.findViewById(R.id.etTotalBudget).requestFocus();
+        View layoutSelectEvent = dialogView.findViewById(R.id.layoutSelectEvent);
+        if (layoutSelectEvent != null) layoutSelectEvent.setVisibility(View.GONE);
 
         EditText etBudget = dialogView.findViewById(R.id.etTotalBudget);
+        etBudget.requestFocus();
 
-        builder.setPositiveButton("Add", (dialog, which) -> {
-            String budgetStr = etBudget.getText().toString();
+        // Thêm định dạng tiền tệ khi nhập
+        etBudget.addTextChangedListener(new TextWatcher() {
+            private String current = "";
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().equals(current)) {
+                    etBudget.removeTextChangedListener(this);
+                    String cleanString = s.toString().replaceAll("[^\\d]", "");
+                    if (!cleanString.isEmpty()) {
+                        double parsed = Double.parseDouble(cleanString);
+                        String formatted = decimalFormat.format(parsed);
+                        current = formatted;
+                        etBudget.setText(formatted);
+                        etBudget.setSelection(formatted.length());
+                    } else {
+                        current = "";
+                        etBudget.setText("");
+                    }
+                    etBudget.addTextChangedListener(this);
+                }
+            }
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        builder.setPositiveButton("Thêm", (dialog, which) -> {
+            String budgetStr = etBudget.getText().toString().replaceAll("[^\\d]", "");
             if (!budgetStr.isEmpty()) {
                 try {
                     double budget = Double.parseDouble(budgetStr);
@@ -109,14 +133,13 @@ public class SelectEventBudgetActivity extends AppCompatActivity {
             AppDatabase db = AppDatabase.getInstance(this);
             event.setTotalBudget(budget);
             db.eventDao().updateEvent(event);
-            
             runOnUiThread(() -> {
                 Intent intent = new Intent(this, BudgetPlanActivity.class);
                 intent.putExtra("EVENT_ID", event.getId());
                 intent.putExtra("EVENT_NAME", event.getName());
                 intent.putExtra("TOTAL_BUDGET", budget);
                 startActivity(intent);
-                finish(); // Đóng trang chọn sau khi thêm thành công
+                finish();
             });
         });
     }

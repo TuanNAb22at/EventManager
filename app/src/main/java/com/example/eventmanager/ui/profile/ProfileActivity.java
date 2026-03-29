@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import com.bumptech.glide.Glide;
 import com.example.eventmanager.R;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityProfileBinding;
@@ -19,6 +21,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ActivityProfileBinding binding;
     private SessionManager sessionManager;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final int REQUEST_EDIT_PROFILE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +36,8 @@ public class ProfileActivity extends AppCompatActivity {
         binding.btnBack.setOnClickListener(v -> finish());
         
         binding.btnEditProfile.setOnClickListener(v -> {
-            Toast.makeText(this, "Chức năng chỉnh sửa đang được phát triển", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, EditProfileActivity.class);
+            startActivityForResult(intent, REQUEST_EDIT_PROFILE);
         });
     }
 
@@ -52,14 +56,25 @@ public class ProfileActivity extends AppCompatActivity {
                     
                     if (user.getAboutMe() != null && !user.getAboutMe().isEmpty()) {
                         binding.tvAboutMe.setText(user.getAboutMe());
+                    } else {
+                        binding.tvAboutMe.setText("Chưa có thông tin giới thiệu.");
                     }
 
+                    binding.chipGroupInterests.removeAllViews();
                     if (user.getInterests() != null && !user.getInterests().isEmpty()) {
-                        binding.chipGroupInterests.removeAllViews();
                         String[] interests = user.getInterests().split(",");
                         for (String interest : interests) {
                             addInterestChip(interest.trim());
                         }
+                    }
+
+                    if (user.getAvatarUri() != null && !user.getAvatarUri().isEmpty()) {
+                        Glide.with(this)
+                            .load(user.getAvatarUri())
+                            .placeholder(R.drawable.ic_user)
+                            .into(binding.ivAvatar);
+                    } else {
+                        binding.ivAvatar.setImageResource(R.drawable.ic_user);
                     }
                 });
             }
@@ -80,6 +95,14 @@ public class ProfileActivity extends AppCompatActivity {
             case SessionManager.ROLE_ORGANIZER: return "Người tổ chức";
             case SessionManager.ROLE_STAFF: return "Nhân viên";
             default: return "Người dùng";
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_EDIT_PROFILE && resultCode == RESULT_OK) {
+            loadUserData();
         }
     }
 

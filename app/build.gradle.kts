@@ -44,7 +44,7 @@ android {
                 "src/main/res-layouts/event",
                 "src/main/res-layouts/items",
                 "src/main/res-layouts/profile",
-                "src/main/res" // Luôn giữ res mặc định
+                "src/main" // Luôn giữ res mặc định
             )
         }
     }
@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.core.splashscreen)
+    implementation(libs.play.services.location)
     
     // Room
     implementation(libs.room.runtime)

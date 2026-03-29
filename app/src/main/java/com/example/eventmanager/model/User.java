@@ -27,6 +27,9 @@ public class User {
     @ColumnInfo(name = "interests")
     private String interests;
 
+    @ColumnInfo(name = "avatarUri")
+    private String avatarUri;
+
     @Ignore
     private String role; // Field for UI/Logic convenience, not stored in 'user' table directly
 
@@ -65,6 +68,9 @@ public class User {
 
     public String getInterests() { return interests; }
     public void setInterests(String interests) { this.interests = interests; }
+
+    public String getAvatarUri() { return avatarUri; }
+    public void setAvatarUri(String avatarUri) { this.avatarUri = avatarUri; }
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }

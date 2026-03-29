@@ -15,8 +15,12 @@ import com.example.eventmanager.model.Event;
 import com.example.eventmanager.utils.SessionManager;
 import com.example.eventmanager.viewmodel.EventViewModel;
 import com.google.android.material.tabs.TabLayout;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class MyEventActivity extends AppCompatActivity {
@@ -29,6 +33,7 @@ public class MyEventActivity extends AppCompatActivity {
     private List<Event> allMyEvents = new ArrayList<>();
     private String currentSearchQuery = "";
     private String selectedCategory = "Tất cả";
+    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +123,6 @@ public class MyEventActivity extends AppCompatActivity {
 
     private void observeEvents() {
         if (sessionManager.isStaff()) {
-            // Nhân viên xem toàn bộ sự kiện để quản lý các task được giao
             eventViewModel.getAllEvents().observe(this, events -> {
                 if (events != null) {
                     allMyEvents = events;
@@ -126,7 +130,6 @@ public class MyEventActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // Người tổ chức xem sự kiện do mình tạo
             eventViewModel.getMyEvents(sessionManager.getUserId()).observe(this, events -> {
                 if (events != null) {
                     allMyEvents = events;
@@ -147,24 +150,40 @@ public class MyEventActivity extends AppCompatActivity {
         });
     }
 
+    private boolean isEventPassed(Event event) {
+        if ("Đã kết thúc".equals(event.getStatus())) return true;
+        if (event.getEndAt() != null && !event.getEndAt().isEmpty()) {
+            try {
+                Date endDate = dateTimeFormat.parse(event.getEndAt());
+                return endDate != null && endDate.before(new Date());
+            } catch (ParseException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
     private void filterAndDisplayEvents() {
         int tabPosition = binding.tabLayout.getSelectedTabPosition();
         
         List<Event> filteredList = allMyEvents.stream()
             .filter(event -> {
-                // Lọc theo Tab (Sắp tới / Đã qua)
-                boolean matchesTab = (tabPosition == 0) 
-                    ? !"Đã kết thúc".equals(event.getStatus()) 
-                    : "Đã kết thúc".equals(event.getStatus());
-                
-                // Lọc theo từ khóa tìm kiếm
+                boolean passed = isEventPassed(event);
+                boolean matchesTab = (tabPosition == 0) ? !passed : passed;
                 boolean matchesSearch = event.getName().toLowerCase().contains(currentSearchQuery);
-                
-                // Lọc theo loại sự kiện (Category)
                 boolean matchesCategory = selectedCategory.equals("Tất cả") || 
                                           (event.getEventType() != null && event.getEventType().equalsIgnoreCase(selectedCategory));
-                
                 return matchesTab && matchesSearch && matchesCategory;
+            })
+            .sorted((e1, e2) -> {
+                try {
+                    Date d1 = dateTimeFormat.parse(e1.getStartAt());
+                    Date d2 = dateTimeFormat.parse(e2.getStartAt());
+                    if (d1 == null || d2 == null) return 0;
+                    return d1.compareTo(d2);
+                } catch (ParseException e) {
+                    return 0;
+                }
             })
             .collect(Collectors.toList());
         

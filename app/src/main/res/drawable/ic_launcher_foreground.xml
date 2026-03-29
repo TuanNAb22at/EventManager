@@ -3,15 +3,23 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,54m-40,0a40,40 0,1 1,80 0a40,40 0,1 1,-80 0"
-        android:strokeWidth="4"
-        android:strokeColor="#FFFFFF"/>
-    <path
-        android:fillColor="#4F6DFF"
-        android:pathData="M54,54m-32,0a32,32 0,1 1,64 0a32,32 0,1 1,-64 0"/>
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M65,42H43v24h22v-4H47v-6h14v-4H47v-6h18V42z"/>
+    <group
+        android:translateX="4"
+        android:translateY="4">
+        <!-- Thân chữ e màu xanh dương -->
+        <path
+            android:pathData="M78,38 A30,30 0 1 0 78,62"
+            android:strokeColor="#4F6DFF"
+            android:strokeWidth="14"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+
+        <!-- Thanh ngang cách điệu màu Cyan -->
+        <path
+            android:pathData="M40,58 L82,38"
+            android:strokeColor="#00E5FF"
+            android:strokeWidth="14"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+    </group>
 </vector>
