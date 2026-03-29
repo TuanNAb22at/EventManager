@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.example.eventmanager.R;
 import com.example.eventmanager.model.User;
 import com.example.eventmanager.utils.SessionManager;
@@ -57,6 +58,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
         holder.tvUserRole.setText(displayRole);
 
+        // Hiển thị ảnh đại diện (Avatar)
+        if (user.getAvatarUri() != null && !user.getAvatarUri().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                .load(user.getAvatarUri())
+                .placeholder(R.drawable.ic_user)
+                .error(R.drawable.ic_user)
+                .circleCrop()
+                .into(holder.ivUserAvatar);
+        } else {
+            holder.ivUserAvatar.setImageResource(R.drawable.ic_user);
+        }
+
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(user));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(user));
         holder.btnResetPassword.setOnClickListener(v -> listener.onResetPassword(user));
@@ -80,7 +93,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     public static class UserViewHolder extends RecyclerView.ViewHolder {
         TextView tvUserName, tvUserRole;
-        ImageView btnEdit, btnDelete, btnResetPassword;
+        ImageView btnEdit, btnDelete, btnResetPassword, ivUserAvatar;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -89,6 +102,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             btnEdit = itemView.findViewById(R.id.btnEditUser);
             btnDelete = itemView.findViewById(R.id.btnDeleteUser);
             btnResetPassword = itemView.findViewById(R.id.btnResetPassword);
+            ivUserAvatar = itemView.findViewById(R.id.ivUserAvatar);
         }
     }
 }

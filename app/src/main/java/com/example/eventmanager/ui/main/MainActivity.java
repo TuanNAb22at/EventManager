@@ -1,7 +1,12 @@
 package com.example.eventmanager.ui.main;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,10 +14,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
@@ -20,11 +29,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.bumptech.glide.Glide;
 import com.example.eventmanager.R;
 import com.example.eventmanager.adapter.FilterAdapter;
 import com.example.eventmanager.adapter.UpcomingEventAdapter;
 import com.example.eventmanager.databinding.ActivityMainBinding;
+import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.model.Event;
+import com.example.eventmanager.model.User;
 import com.example.eventmanager.ui.auth.ChangePasswordActivity;
 import com.example.eventmanager.ui.auth.LoginActivity;
 import com.example.eventmanager.ui.budget.BudgetEventActivity;
@@ -34,12 +46,24 @@ import com.example.eventmanager.ui.event.MyEventActivity;
 import com.example.eventmanager.ui.location.VenueListActivity;
 import com.example.eventmanager.ui.profile.ProfileActivity;
 import com.example.eventmanager.ui.profile.UserListActivity;
+import com.example.eventmanager.ui.task.TaskOverviewActivity;
 import com.example.eventmanager.ui.vendor.VendorListActivity;
 import com.example.eventmanager.utils.SessionManager;
 import com.example.eventmanager.viewmodel.EventViewModel;
+import com.google.android.gms.location.CurrentLocationRequest;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.material.snackbar.Snackbar;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
@@ -52,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
     private List<Event> allEvents = new ArrayList<>();
     private String currentSearchQuery = "";
     private String selectedCategory = "Tất cả";
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+    private FusedLocationProviderClient fusedLocationClient;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         initUI();
         setupSearch();
@@ -81,13 +110,93 @@ public class MainActivity extends AppCompatActivity {
         observeEvents();
         observeEventTypes();
         checkUserPermissions();
+        setupLocationSelection();
+        
+        // Mặc định lấy vị trí tự động khi mở app
+        getCurrentLocation();
+        
+        binding.btnDashboardAction.setOnClickListener(v -> {
+            startActivity(new Intent(this, TaskOverviewActivity.class));
+        });
+    }
+
+    private void setupLocationSelection() {
+        binding.locationContainer.setOnClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(this, v);
+            popupMenu.getMenu().add(0, 1, 0, "Vị trí hiện tại (GPS)");
+            popupMenu.getMenu().add(0, 2, 1, "Hà Nội, Việt Nam");
+            
+            popupMenu.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == 1) {
+                    getCurrentLocation();
+                } else if (item.getItemId() == 2) {
+                    binding.tvCurrentLocation.setText("Hà Nội, Việt Nam");
+                }
+                return true;
+            });
+            popupMenu.show();
+        });
+    }
+
+    private void getCurrentLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+
+        CurrentLocationRequest locationRequest = new CurrentLocationRequest.Builder()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build();
+
+        fusedLocationClient.getCurrentLocation(locationRequest, null).addOnSuccessListener(this, location -> {
+            if (location != null) {
+                updateLocationUI(location.getLatitude(), location.getLongitude());
+            }
+        });
+    }
+
+    private void updateLocationUI(double lat, double lon) {
+        executorService.execute(() -> {
+            Geocoder geocoder = new Geocoder(this, new Locale("vi", "VN"));
+            try {
+                List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address address = addresses.get(0);
+                    String locationName = address.getLocality();
+                    if (locationName == null) locationName = address.getSubAdminArea();
+                    if (locationName == null) locationName = address.getAdminArea();
+                    
+                    String countryName = address.getCountryName();
+                    String fullLocation = (locationName != null ? locationName : "") + 
+                                         (locationName != null && countryName != null ? ", " : "") + 
+                                         (countryName != null ? countryName : "");
+                    
+                    runOnUiThread(() -> {
+                        if (!fullLocation.isEmpty()) {
+                            binding.tvCurrentLocation.setText(fullLocation);
+                        }
+                    });
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLocation();
+            }
+        }
     }
 
     private void checkUserPermissions() {
         if (sessionManager.isStaff()) {
             binding.fabAdd.setVisibility(View.GONE);
 
-            // Ẩn menu Ngân sách và Placeholder ở thanh điều hướng dưới
             Menu menu = binding.bottomNavigationView.getMenu();
             MenuItem budgetItem = menu.findItem(R.id.nav_budget);
             if (budgetItem != null) {
@@ -99,7 +208,6 @@ public class MainActivity extends AppCompatActivity {
                 placeholderItem.setVisible(false);
             }
 
-            // Ẩn menu Quản lý tài khoản trong Drawer
             Menu drawerMenu = binding.navigationView.getMenu();
             MenuItem manageAccountItem = drawerMenu.findItem(R.id.nav_manage_accounts);
             if (manageAccountItem != null) {
@@ -114,6 +222,57 @@ public class MainActivity extends AppCompatActivity {
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
+        updateHeaderInfo();
+        updateDashboardInfo();
+    }
+
+    private void updateDashboardInfo() {
+        executorService.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            int pendingCount;
+            if (sessionManager.isStaff()) {
+                pendingCount = db.taskDao().getPendingTaskCountForUserSync(sessionManager.getUserId());
+            } else {
+                pendingCount = db.taskDao().getPendingTaskCountAllSync();
+            }
+
+            runOnUiThread(() -> {
+                if (pendingCount > 0) {
+                    binding.tvDashboardSubtitle.setText("Bạn có " + pendingCount + " công việc đang chờ xử lý.");
+                } else {
+                    binding.tvDashboardSubtitle.setText("Tuyệt vời! Bạn đã hoàn thành tất cả công việc.");
+                }
+            });
+        });
+    }
+
+    private void updateHeaderInfo() {
+        executorService.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(this);
+            User user = db.userDao().getUserById(sessionManager.getUserId());
+            if (user != null) {
+                runOnUiThread(() -> {
+                    View headerView = binding.navigationView.getHeaderView(0);
+                    TextView tvHeaderName = headerView.findViewById(R.id.tvHeaderName);
+                    TextView tvHeaderRole = headerView.findViewById(R.id.tvHeaderRole);
+                    ImageView ivUserAvatar = headerView.findViewById(R.id.ivUserAvatar);
+
+                    if (tvHeaderName != null) tvHeaderName.setText(user.getFullName());
+                    if (tvHeaderRole != null) tvHeaderRole.setText(getRoleDisplayName(sessionManager.getUserRole()));
+                    if (ivUserAvatar != null) {
+                        if (user.getAvatarUri() != null && !user.getAvatarUri().isEmpty()) {
+                            Glide.with(this)
+                                .load(user.getAvatarUri())
+                                .placeholder(R.drawable.ic_user)
+                                .circleCrop()
+                                .into(ivUserAvatar);
+                        } else {
+                            ivUserAvatar.setImageResource(R.drawable.ic_user);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     private void initUI() {
@@ -182,17 +341,39 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private boolean isEventPassed(Event event) {
+        if ("Đã kết thúc".equals(event.getStatus())) return true;
+        if (event.getEndAt() != null && !event.getEndAt().isEmpty()) {
+            try {
+                Date endDate = dateTimeFormat.parse(event.getEndAt());
+                return endDate != null && endDate.before(new Date());
+            } catch (ParseException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
     private void filterAndDisplayEvents() {
         List<Event> filteredList = allEvents.stream()
             .filter(event -> {
-                // Lọc theo tên
+                // Chỉ hiển thị sự kiện CHƯA kết thúc ở mục Sự kiện sắp tới
+                if (isEventPassed(event)) return false;
+
                 boolean matchesSearch = event.getName().toLowerCase().contains(currentSearchQuery);
-                
-                // Lọc theo loại sự kiện
                 boolean matchesCategory = selectedCategory.equals("Tất cả") || 
                                           (event.getEventType() != null && event.getEventType().equalsIgnoreCase(selectedCategory));
-                
                 return matchesSearch && matchesCategory;
+            })
+            .sorted((e1, e2) -> {
+                try {
+                    Date d1 = dateTimeFormat.parse(e1.getStartAt());
+                    Date d2 = dateTimeFormat.parse(e2.getStartAt());
+                    if (d1 == null || d2 == null) return 0;
+                    return d1.compareTo(d2);
+                } catch (ParseException e) {
+                    return 0;
+                }
             })
             .collect(Collectors.toList());
         
@@ -230,12 +411,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupDrawer() {
         binding.btnMenu.setOnClickListener(v -> binding.drawerLayout.openDrawer(GravityCompat.START));
 
-        View headerView = binding.navigationView.getHeaderView(0);
-        TextView tvHeaderName = headerView.findViewById(R.id.tvHeaderName);
-        TextView tvHeaderRole = headerView.findViewById(R.id.tvHeaderRole);
-        
-        if (tvHeaderName != null) tvHeaderName.setText(sessionManager.getUsername());
-        if (tvHeaderRole != null) tvHeaderRole.setText(getRoleDisplayName(sessionManager.getUserRole()));
+        updateHeaderInfo();
 
         binding.navigationView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -286,5 +462,11 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown();
     }
 }

@@ -40,12 +40,12 @@ public class AddEventActivity extends AppCompatActivity {
     private static final int SELECT_LOCATION_REQUEST = 2;
 
     private static final String[] EVENT_TYPES = {
-        "Đám cưới (Wedding)",
-        "Sinh nhật (Birthday)",
-        "Hội nghị/Sự kiện doanh nghiệp",
+        "Đám cưới",
+        "Sinh nhật",
+        "Hội nghị",
         "Lễ kỷ niệm",
-        "Tiệc tối (Gala Dinner)",
-        "Buổi hòa nhạc/Show diễn",
+        "Tiệc tối",
+        "Buổi hòa nhạc",
         "Khác"
     };
 
@@ -197,7 +197,6 @@ public class AddEventActivity extends AppCompatActivity {
         String startTime = binding.tvStartTime.getText().toString().trim();
         String endTime = binding.tvEndTime.getText().toString().trim();
         String locationName = binding.etLocation.getText().toString().trim();
-        String guestsStr = binding.etTotalGuests.getText().toString().trim();
         String description = binding.etDescription.getText().toString().trim();
 
         if (name.isEmpty()) {
@@ -242,24 +241,6 @@ public class AddEventActivity extends AppCompatActivity {
             return;
         }
 
-        int totalGuests = 0;
-        if (!guestsStr.isEmpty()) {
-            try {
-                totalGuests = Integer.parseInt(guestsStr);
-                if (totalGuests < 0) {
-                    binding.etTotalGuests.setError("Số lượng khách không thể âm");
-                    binding.etTotalGuests.requestFocus();
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                binding.etTotalGuests.setError("Số lượng khách không hợp lệ");
-                binding.etTotalGuests.requestFocus();
-                return;
-            }
-        }
-
-        final int finalTotalGuests = totalGuests;
-
         executorService.execute(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(this);
@@ -288,7 +269,7 @@ public class AddEventActivity extends AppCompatActivity {
                 event.setLocationId(locationId);
                 event.setCreatedBy(userId);
                 event.setBannerUri(selectedBannerUri);
-                event.setTotalGuests(finalTotalGuests);
+                event.setTotalGuests(0); // Default to 0 as field removed
                 event.setStatus("Đang lên kế hoạch");
                 event.setTotalBudget(0.0);
 
