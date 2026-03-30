@@ -1,6 +1,8 @@
 package com.example.eventmanager.ui.profile;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -11,6 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.eventmanager.R;
+import com.example.eventmanager.adapter.FilterAdapter;
 import com.example.eventmanager.adapter.UserAdapter;
 import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityUserListBinding;
@@ -23,13 +26,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class UserListActivity extends AppCompatActivity implements UserAdapter.OnUserActionListener {
 
     private ActivityUserListBinding binding;
     private UserAdapter adapter;
+    private FilterAdapter filterAdapter;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SessionManager sessionManager;
+    private List<User> allUsersList = new ArrayList<>();
+    private String currentSearchQuery = "";
+    private String selectedRoleFilter = "Tất cả";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +53,11 @@ public class UserListActivity extends AppCompatActivity implements UserAdapter.O
         }
 
         setupRecyclerView();
+        setupSearch();
+        setupFilters();
         loadUsers();
 
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        binding.btnBack.setOnClickListener(v -> finish());
         binding.fabAddUser.setOnClickListener(v -> showAddUserDialog());
     }
 
@@ -57,16 +67,68 @@ public class UserListActivity extends AppCompatActivity implements UserAdapter.O
         binding.rvUsers.setAdapter(adapter);
     }
 
+    private void setupSearch() {
+        binding.etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString().toLowerCase().trim();
+                applyFilters();
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void setupFilters() {
+        List<String> roles = new ArrayList<>();
+        roles.add("Tất cả");
+        roles.add("Người tổ chức");
+        roles.add("Nhân viên");
+
+        filterAdapter = new FilterAdapter(roles, role -> {
+            selectedRoleFilter = role;
+            filterAdapter.setSelectedFilter(role);
+            applyFilters();
+        });
+        filterAdapter.setSelectedFilter("Tất cả");
+        
+        binding.rvFilters.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        binding.rvFilters.setAdapter(filterAdapter);
+    }
+
     private void loadUsers() {
         executorService.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
             List<User> users = db.userDao().getAllUsers();
             for (User user : users) {
                 List<String> roles = db.userDao().getUserRolesByUsername(user.getUsername());
-                user.setRole(roles != null && !roles.isEmpty() ? roles.get(0) : "USER");
+                String role = roles != null && !roles.isEmpty() ? roles.get(0) : "STAFF";
+                user.setRole(role);
             }
-            runOnUiThread(() -> adapter.setUsers(users));
+            allUsersList = users;
+            runOnUiThread(this::applyFilters);
         });
+    }
+
+    private void applyFilters() {
+        List<User> filtered = allUsersList.stream().filter(user -> {
+            boolean matchesSearch = user.getFullName().toLowerCase().contains(currentSearchQuery) || 
+                                   user.getUsername().toLowerCase().contains(currentSearchQuery);
+            
+            boolean matchesRole = true;
+            if (selectedRoleFilter.equals("Người tổ chức")) {
+                matchesRole = SessionManager.ROLE_ORGANIZER.equals(user.getRole());
+            } else if (selectedRoleFilter.equals("Nhân viên")) {
+                matchesRole = SessionManager.ROLE_STAFF.equals(user.getRole());
+            }
+
+            return matchesSearch && matchesRole;
+        }).collect(Collectors.toList());
+
+        adapter.setUsers(filtered);
+        binding.tvEmptyState.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void showAddUserDialog() {
@@ -78,7 +140,9 @@ public class UserListActivity extends AppCompatActivity implements UserAdapter.O
         EditText etUsername = view.findViewById(R.id.etUsername);
         Spinner spRole = view.findViewById(R.id.spRole);
 
-        String[] roles = {"ORGANIZER", "STAFF"};
+        String[] roles = {"Người tổ chức", "Nhân viên"};
+        String[] actualRoles = {SessionManager.ROLE_ORGANIZER, SessionManager.ROLE_STAFF};
+        
         ArrayAdapter<String> roleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, roles);
         spRole.setAdapter(roleAdapter);
 
@@ -86,7 +150,7 @@ public class UserListActivity extends AppCompatActivity implements UserAdapter.O
         builder.setPositiveButton("Thêm", (dialog, which) -> {
             String fullName = etFullName.getText().toString().trim();
             String username = etUsername.getText().toString().trim();
-            String roleName = spRole.getSelectedItem().toString();
+            String roleName = actualRoles[spRole.getSelectedItemPosition()];
 
             if (fullName.isEmpty() || username.isEmpty()) {
                 Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
@@ -128,13 +192,15 @@ public class UserListActivity extends AppCompatActivity implements UserAdapter.O
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit_user_role, null);
         Spinner spRole = view.findViewById(R.id.spRole);
 
-        String[] roles = {"ORGANIZER", "STAFF"};
+        String[] roles = {"Người tổ chức", "Nhân viên"};
+        String[] actualRoles = {SessionManager.ROLE_ORGANIZER, SessionManager.ROLE_STAFF};
+        
         ArrayAdapter<String> roleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, roles);
         spRole.setAdapter(roleAdapter);
         
         // Set current selection
-        for(int i=0; i<roles.length; i++) {
-            if(roles[i].equals(user.getRole())) {
+        for(int i=0; i<actualRoles.length; i++) {
+            if(actualRoles[i].equals(user.getRole())) {
                 spRole.setSelection(i);
                 break;
             }
@@ -142,7 +208,7 @@ public class UserListActivity extends AppCompatActivity implements UserAdapter.O
 
         builder.setView(view);
         builder.setPositiveButton("Cập nhật", (dialog, which) -> {
-            String newRoleName = spRole.getSelectedItem().toString();
+            String newRoleName = actualRoles[spRole.getSelectedItemPosition()];
             updateUserRole(user, newRoleName);
         });
         builder.setNegativeButton("Hủy", null);
