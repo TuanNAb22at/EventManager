@@ -68,7 +68,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                     
                                     // 2. Insert Hardcoded Organizer with HASHED password
                                     User organizer = new User();
-                                    organizer.setFullName("Nguyễn Tuấn (Admin)");
+                                    organizer.setFullName("Nguyễn Tuấn");
                                     organizer.setUsername("nguyentuan");
                                     organizer.setPassword(PasswordUtils.hashPassword("123456")); 
                                     long userId = database.userDao().insertUser(organizer);

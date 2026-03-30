@@ -60,8 +60,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -108,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
         setupBottomNavigation();
         setupFab();
         observeEvents();
-        observeEventTypes();
         checkUserPermissions();
         setupLocationSelection();
         
@@ -325,20 +326,25 @@ public class MainActivity extends AppCompatActivity {
         eventViewModel.getAllEvents().observe(this, events -> {
             if (events != null) {
                 allEvents = events;
+                updateFilterChips(events);
                 filterAndDisplayEvents();
             }
         });
     }
 
-    private void observeEventTypes() {
-        eventViewModel.getAllEventTypes().observe(this, types -> {
-            if (types != null) {
-                List<String> categories = new ArrayList<>();
-                categories.add("Tất cả");
-                categories.addAll(types);
-                filterAdapter.setFilters(categories);
+    private void updateFilterChips(List<Event> events) {
+        // Chỉ lấy loại sự kiện từ các sự kiện CHƯA kết thúc
+        Set<String> types = new HashSet<>();
+        for (Event event : events) {
+            if (!isEventPassed(event) && event.getEventType() != null) {
+                types.add(event.getEventType());
             }
-        });
+        }
+
+        List<String> categories = new ArrayList<>();
+        categories.add("Tất cả");
+        categories.addAll(types);
+        filterAdapter.setFilters(categories);
     }
 
     private boolean isEventPassed(Event event) {

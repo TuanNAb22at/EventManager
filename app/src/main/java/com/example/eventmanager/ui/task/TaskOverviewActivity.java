@@ -2,6 +2,8 @@ package com.example.eventmanager.ui.task;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class TaskOverviewActivity extends AppCompatActivity {
 
@@ -23,6 +26,9 @@ public class TaskOverviewActivity extends AppCompatActivity {
     private TaskOverviewAdapter adapter;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SessionManager sessionManager;
+    private List<Event> fullEventsWithTasks = new ArrayList<>();
+    private Map<Integer, Integer> fullTaskCounts = new HashMap<>();
+    private String currentSearchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +38,9 @@ public class TaskOverviewActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
         setupRecyclerView();
+        setupSearch();
         
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        binding.btnBack.setOnClickListener(v -> finish());
     }
 
     @Override
@@ -51,6 +58,20 @@ public class TaskOverviewActivity extends AppCompatActivity {
         });
         binding.rvEventTasks.setLayoutManager(new LinearLayoutManager(this));
         binding.rvEventTasks.setAdapter(adapter);
+    }
+
+    private void setupSearch() {
+        binding.etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString().toLowerCase().trim();
+                applyFilter();
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
     private void loadData() {
@@ -82,11 +103,20 @@ public class TaskOverviewActivity extends AppCompatActivity {
                 }
             }
 
-            runOnUiThread(() -> {
-                adapter.setData(eventsWithTasks, taskCounts);
-                binding.tvEmptyState.setVisibility(eventsWithTasks.isEmpty() ? View.VISIBLE : View.GONE);
-            });
+            fullEventsWithTasks = eventsWithTasks;
+            fullTaskCounts = taskCounts;
+
+            runOnUiThread(this::applyFilter);
         });
+    }
+
+    private void applyFilter() {
+        List<Event> filteredEvents = fullEventsWithTasks.stream()
+                .filter(event -> event.getName().toLowerCase().contains(currentSearchQuery))
+                .collect(Collectors.toList());
+
+        adapter.setData(filteredEvents, fullTaskCounts);
+        binding.tvEmptyState.setVisibility(filteredEvents.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     @Override
