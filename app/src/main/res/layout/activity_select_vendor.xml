@@ -108,7 +108,7 @@
         android:paddingHorizontal="16dp"
         android:paddingTop="20dp"
         android:clipToPadding="false"
-        android:paddingBottom="120dp"
+        android:paddingBottom="160dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_select_supplier" />
 
@@ -134,7 +134,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="20dp"
+            android:paddingBottom="32dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
