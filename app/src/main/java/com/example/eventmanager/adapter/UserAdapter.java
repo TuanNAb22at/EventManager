@@ -21,6 +21,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         void onEdit(User user);
         void onDelete(User user);
         void onResetPassword(User user);
+        void onAvatarClick(User user);
     }
 
     public UserAdapter(List<User> users, OnUserActionListener listener) {
@@ -73,7 +74,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(user));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(user));
         holder.btnResetPassword.setOnClickListener(v -> listener.onResetPassword(user));
-        
+        holder.ivUserAvatar.setOnClickListener(v -> listener.onAvatarClick(user));
+
         // Bảo vệ tài khoản gốc: Không cho phép Sửa hoặc Xóa admin hệ thống mặc định (nguyentuan)
         if ("nguyentuan".equals(user.getUsername())) {
             holder.btnDelete.setVisibility(View.GONE);

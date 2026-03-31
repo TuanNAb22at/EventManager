@@ -1,17 +1,23 @@
 package com.example.eventmanager.ui.location;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.example.eventmanager.R;
 import com.example.eventmanager.adapter.VenueAdapter;
 import com.example.eventmanager.databinding.ActivityVenueListBinding;
 import com.example.eventmanager.model.Location;
 import com.example.eventmanager.viewmodel.LocationViewModel;
+import com.google.android.material.card.MaterialCardView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +46,7 @@ public class VenueListActivity extends AppCompatActivity {
 
         isSelectMode = getIntent().getBooleanExtra(EXTRA_SELECT_MODE, false);
         if (isSelectMode) {
-            binding.toolbar.setTitle("Chọn địa điểm");
+            binding.tvTitle.setText("Chọn địa điểm");
         }
 
         viewModel = new ViewModelProvider(this).get(LocationViewModel.class);
@@ -57,7 +63,7 @@ public class VenueListActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        binding.btnBack.setOnClickListener(v -> finish());
     }
 
     private void setupRecyclerView() {
@@ -97,41 +103,32 @@ public class VenueListActivity extends AppCompatActivity {
         });
 
         // Lọc giá thấp đến cao
-        binding.btnSortPrice.setOnClickListener(v -> {
+        binding.cardSortPrice.setOnClickListener(v -> {
             isSortLowToHigh = !isSortLowToHigh;
-            updateFilterButtonState(binding.btnSortPrice, isSortLowToHigh);
+            updateFilterCardState(binding.cardSortPrice, binding.tvSortPriceLabel, isSortLowToHigh);
             applyFilters();
         });
 
         // Lọc sức chứa 500+
-        binding.btnFilterCapacity.setOnClickListener(v -> {
+        binding.cardFilterCapacity.setOnClickListener(v -> {
             isFilterCapacity500 = !isFilterCapacity500;
-            updateFilterButtonState(binding.btnFilterCapacity, isFilterCapacity500);
+            updateFilterCardState(binding.cardFilterCapacity, binding.tvFilterCapacityLabel, isFilterCapacity500);
             applyFilters();
         });
     }
 
-    private void updateFilterButtonState(android.widget.Button button, boolean isActive) {
-        if (button instanceof com.google.android.material.button.MaterialButton) {
-            com.google.android.material.button.MaterialButton materialButton = (com.google.android.material.button.MaterialButton) button;
-            if (isActive) {
-                materialButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(com.example.eventmanager.R.color.primary_blue)));
-                materialButton.setTextColor(getResources().getColor(android.R.color.white));
-                materialButton.setStrokeWidth(0);
-            } else {
-                materialButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
-                materialButton.setTextColor(getResources().getColor(android.R.color.black));
-                materialButton.setStrokeWidth(1);
-            }
+    private void updateFilterCardState(MaterialCardView card, TextView label, boolean isActive) {
+        if (isActive) {
+            card.setCardBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.primary_blue)));
+            label.setTextColor(Color.WHITE);
+            card.setStrokeWidth(0);
+            card.setCardElevation(4f);
         } else {
-            // Fallback for regular Button if it's not a MaterialButton for some reason
-            if (isActive) {
-                button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(com.example.eventmanager.R.color.primary_blue)));
-                button.setTextColor(getResources().getColor(android.R.color.white));
-            } else {
-                button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
-                button.setTextColor(getResources().getColor(android.R.color.black));
-            }
+            card.setCardBackgroundColor(ColorStateList.valueOf(Color.WHITE));
+            label.setTextColor(Color.parseColor("#475569"));
+            card.setStrokeWidth(1);
+            card.setStrokeColor(ColorStateList.valueOf(Color.parseColor("#E2E8F0")));
+            card.setCardElevation(0f);
         }
     }
 
@@ -156,8 +153,6 @@ public class VenueListActivity extends AppCompatActivity {
         // 3. Sắp xếp theo giá
         if (isSortLowToHigh) {
             Collections.sort(filteredList, (l1, l2) -> Double.compare(l1.getPrice(), l2.getPrice()));
-        } else {
-            // Mặc định hoặc quay lại trạng thái cũ, LiveData sẽ trả về danh sách gốc
         }
 
         adapter.setLocations(filteredList);
