@@ -230,16 +230,28 @@ public class MainActivity extends AppCompatActivity {
     private void updateDashboardInfo() {
         executorService.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
-            int pendingCount;
-            if (sessionManager.isStaff()) {
-                pendingCount = db.taskDao().getPendingTaskCountForUserSync(sessionManager.getUserId());
-            } else {
-                pendingCount = db.taskDao().getPendingTaskCountAllSync();
+            int userId = sessionManager.getUserId();
+            List<Event> allEvents = db.eventDao().getAllEventsSync();
+            Date now = new Date();
+            int pendingCount = 0;
+
+            for (Event event : allEvents) {
+                // Chỉ đếm task của những sự kiện CHƯA kết thúc
+                if (isEventPassed(event)) {
+                    continue;
+                }
+
+                if (sessionManager.isStaff()) {
+                    pendingCount += db.taskDao().getPendingTaskCountForUserByEventSync(userId, event.getId());
+                } else {
+                    pendingCount += db.taskDao().getPendingTaskCountByEventSync(event.getId());
+                }
             }
 
+            int finalPendingCount = pendingCount;
             runOnUiThread(() -> {
-                if (pendingCount > 0) {
-                    binding.tvDashboardSubtitle.setText("Bạn có " + pendingCount + " công việc đang chờ xử lý.");
+                if (finalPendingCount > 0) {
+                    binding.tvDashboardSubtitle.setText("Bạn có " + finalPendingCount + " công việc đang chờ xử lý.");
                 } else {
                     binding.tvDashboardSubtitle.setText("Tuyệt vời! Bạn đã hoàn thành tất cả công việc.");
                 }
@@ -323,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void observeEvents() {
+        // Luôn lấy toàn bộ sự kiện cho mọi cấp độ quản lý (Người tổ chức & Nhân viên)
         eventViewModel.getAllEvents().observe(this, events -> {
             if (events != null) {
                 allEvents = events;

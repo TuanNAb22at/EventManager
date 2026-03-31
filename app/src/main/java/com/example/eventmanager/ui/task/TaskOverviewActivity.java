@@ -12,9 +12,13 @@ import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityTaskOverviewBinding;
 import com.example.eventmanager.model.Event;
 import com.example.eventmanager.utils.SessionManager;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +33,7 @@ public class TaskOverviewActivity extends AppCompatActivity {
     private List<Event> fullEventsWithTasks = new ArrayList<>();
     private Map<Integer, Integer> fullTaskCounts = new HashMap<>();
     private String currentSearchQuery = "";
+    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +93,14 @@ public class TaskOverviewActivity extends AppCompatActivity {
 
             List<Event> eventsWithTasks = new ArrayList<>();
             Map<Integer, Integer> taskCounts = new HashMap<>();
+            Date now = new Date();
 
             for (Event event : allEvents) {
+                // Kiểm tra nếu sự kiện đã qua thì bỏ qua
+                if (isEventPassed(event, now)) {
+                    continue;
+                }
+
                 int count;
                 if (sessionManager.isStaff()) {
                     count = db.taskDao().getPendingTaskCountForUserByEventSync(userId, event.getId());
@@ -108,6 +119,19 @@ public class TaskOverviewActivity extends AppCompatActivity {
 
             runOnUiThread(this::applyFilter);
         });
+    }
+
+    private boolean isEventPassed(Event event, Date now) {
+        if ("Đã kết thúc".equals(event.getStatus())) return true;
+        if (event.getEndAt() != null && !event.getEndAt().isEmpty()) {
+            try {
+                Date endDate = dateTimeFormat.parse(event.getEndAt());
+                return endDate != null && endDate.before(now);
+            } catch (ParseException e) {
+                return false;
+            }
+        }
+        return false;
     }
 
     private void applyFilter() {

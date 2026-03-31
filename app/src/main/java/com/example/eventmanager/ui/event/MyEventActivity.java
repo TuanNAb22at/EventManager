@@ -122,21 +122,13 @@ public class MyEventActivity extends AppCompatActivity {
     }
 
     private void observeEvents() {
-        if (sessionManager.isStaff()) {
-            eventViewModel.getAllEvents().observe(this, events -> {
-                if (events != null) {
-                    allMyEvents = events;
-                    filterAndDisplayEvents();
-                }
-            });
-        } else {
-            eventViewModel.getMyEvents(sessionManager.getUserId()).observe(this, events -> {
-                if (events != null) {
-                    allMyEvents = events;
-                    filterAndDisplayEvents();
-                }
-            });
-        }
+        // Cho phép cả Người tổ chức và Nhân viên xem toàn bộ sự kiện trong hệ thống
+        eventViewModel.getAllEvents().observe(this, events -> {
+            if (events != null) {
+                allMyEvents = events;
+                filterAndDisplayEvents();
+            }
+        });
     }
 
     private void observeEventTypes() {

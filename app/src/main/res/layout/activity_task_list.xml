@@ -31,36 +31,21 @@
                 app:tint="#1A1C1E" />
 
             <TextView
-                android:id="@+id/tvToolbarTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Danh sách công việc"
-                android:textColor="#1A1C1E"
-                android:textSize="22sp"
-                android:fontFamily="sans-serif-black"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/tvEventTag"
-                app:layout_constraintStart_toEndOf="@id/btnBack"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
                 android:id="@+id/tvEventTag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
                 android:background="@drawable/bg_event_tag"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="6dp"
-                android:text="Sự kiện"
+                android:text="Tên sự kiện"
                 android:textColor="#5C5CFF"
-                android:textSize="13sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
+                android:ellipsize="end"
+                android:maxLines="1"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btnBack"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
