@@ -64,23 +64,57 @@ public class AddVenueActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
     }
 
+    private boolean validateInputs() {
+        boolean isValid = true;
+
+        if (binding.etName.getText().toString().trim().isEmpty()) {
+            binding.tilName.setError("Vui lòng nhập tên địa điểm");
+            isValid = false;
+        } else {
+            binding.tilName.setError(null);
+        }
+
+        if (binding.etAddress.getText().toString().trim().isEmpty()) {
+            binding.tilAddress.setError("Vui lòng nhập địa chỉ");
+            isValid = false;
+        } else {
+            binding.tilAddress.setError(null);
+        }
+
+        if (binding.etPrice.getText().toString().trim().isEmpty()) {
+            binding.tilPrice.setError("Vui lòng nhập giá thuê");
+            isValid = false;
+        } else {
+            binding.tilPrice.setError(null);
+        }
+
+        return isValid;
+    }
+
     private void setupSaveButton() {
         binding.btnSave.setText("Thêm địa điểm");
         binding.btnSave.setOnClickListener(v -> {
+            if (!validateInputs()) return;
+
             String name = binding.etName.getText().toString().trim();
             String address = binding.etAddress.getText().toString().trim();
-
-            if (name.isEmpty() || address.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập tên và địa chỉ", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            String capacityStr = binding.etCapacity.getText().toString().trim();
+            String areaStr = binding.etArea.getText().toString().trim();
+            String priceStr = binding.etPrice.getText().toString().trim();
 
             Location location = new Location();
             location.setName(name);
             location.setAddress(address);
-            location.setCapacity(Integer.parseInt(binding.etCapacity.getText().toString().isEmpty() ? "0" : binding.etCapacity.getText().toString()));
-            location.setArea(Double.parseDouble(binding.etArea.getText().toString().isEmpty() ? "0" : binding.etArea.getText().toString()));
-            location.setPrice(Double.parseDouble(binding.etPrice.getText().toString().isEmpty() ? "0" : binding.etPrice.getText().toString()));
+            
+            try {
+                location.setCapacity(capacityStr.isEmpty() ? 0 : Integer.parseInt(capacityStr));
+                location.setArea(areaStr.isEmpty() ? 0.0 : Double.parseDouble(areaStr));
+                location.setPrice(priceStr.isEmpty() ? 0.0 : Double.parseDouble(priceStr));
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Vui lòng nhập số hợp lệ", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             location.setDescription(binding.etDescription.getText().toString().trim());
             location.setPremium(binding.switchPremium.isChecked());
             

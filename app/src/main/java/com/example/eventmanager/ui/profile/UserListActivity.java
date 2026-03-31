@@ -7,11 +7,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.bumptech.glide.Glide;
 import com.example.eventmanager.R;
 import com.example.eventmanager.adapter.FilterAdapter;
 import com.example.eventmanager.adapter.UserAdapter;
@@ -264,6 +267,45 @@ public class UserListActivity extends AppCompatActivity implements UserAdapter.O
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
+    }
+
+    @Override
+    public void onAvatarClick(User user) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_user_info, null);
+        
+        ImageView ivAvatar = dialogView.findViewById(R.id.ivDialogAvatar);
+        TextView tvFullName = dialogView.findViewById(R.id.tvDialogFullName);
+        TextView tvUsername = dialogView.findViewById(R.id.tvDialogUsername);
+        TextView tvAboutMe = dialogView.findViewById(R.id.tvDialogAboutMe);
+        TextView tvInterests = dialogView.findViewById(R.id.tvDialogInterests);
+        View btnClose = dialogView.findViewById(R.id.btnCloseDialog);
+
+        tvFullName.setText(user.getFullName());
+        tvUsername.setText("@" + user.getUsername());
+        
+        if (user.getAboutMe() != null && !user.getAboutMe().isEmpty()) {
+            tvAboutMe.setText(user.getAboutMe());
+        }
+        
+        if (user.getInterests() != null && !user.getInterests().isEmpty()) {
+            tvInterests.setText(user.getInterests());
+        }
+
+        if (user.getAvatarUri() != null && !user.getAvatarUri().isEmpty()) {
+            Glide.with(this)
+                .load(user.getAvatarUri())
+                .placeholder(R.drawable.ic_user)
+                .circleCrop()
+                .into(ivAvatar);
+        }
+
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        
+        dialog.show();
     }
 
     @Override

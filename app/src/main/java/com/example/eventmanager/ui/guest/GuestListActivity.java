@@ -1,13 +1,18 @@
 package com.example.eventmanager.ui.guest;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.eventmanager.R;
 import com.example.eventmanager.adapter.GuestAdapter;
@@ -15,6 +20,7 @@ import com.example.eventmanager.database.AppDatabase;
 import com.example.eventmanager.databinding.ActivityGuestListBinding;
 import com.example.eventmanager.model.Guest;
 import com.example.eventmanager.utils.SessionManager;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +36,8 @@ public class GuestListActivity extends AppCompatActivity {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private List<Guest> invitedGuests = new ArrayList<>();
     private List<Guest> allSystemGuests = new ArrayList<>();
+    private String currentSearchQuery = "";
+    private String filterStatus = "ALL"; // ALL, INVITED, NOT_INVITED
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +53,8 @@ public class GuestListActivity extends AppCompatActivity {
         }
 
         setupToolbar();
+        setupSearch();
+        setupFilters();
         setupRecyclerView();
         setupTabs();
         loadData();
@@ -54,6 +64,69 @@ public class GuestListActivity extends AppCompatActivity {
 
     private void setupToolbar() {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
+    }
+
+    private void setupSearch() {
+        binding.etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString().trim();
+                updateListBasedOnTab(binding.tabLayout.getSelectedTabPosition());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void setupFilters() {
+        binding.chipAll.setOnClickListener(v -> {
+            filterStatus = "ALL";
+            updateFilterUI();
+            updateListBasedOnTab(binding.tabLayout.getSelectedTabPosition());
+        });
+
+        binding.chipInvited.setOnClickListener(v -> {
+            filterStatus = "INVITED";
+            updateFilterUI();
+            updateListBasedOnTab(binding.tabLayout.getSelectedTabPosition());
+        });
+
+        binding.chipNotInvited.setOnClickListener(v -> {
+            filterStatus = "NOT_INVITED";
+            updateFilterUI();
+            updateListBasedOnTab(binding.tabLayout.getSelectedTabPosition());
+        });
+    }
+
+    private void updateFilterUI() {
+        resetChipStyle(binding.chipAll, binding.tvAll);
+        resetChipStyle(binding.chipInvited, binding.tvInvited);
+        resetChipStyle(binding.chipNotInvited, binding.tvNotInvited);
+
+        if (filterStatus.equals("ALL")) {
+            setActiveChipStyle(binding.chipAll, binding.tvAll);
+        } else if (filterStatus.equals("INVITED")) {
+            setActiveChipStyle(binding.chipInvited, binding.tvInvited);
+        } else if (filterStatus.equals("NOT_INVITED")) {
+            setActiveChipStyle(binding.chipNotInvited, binding.tvNotInvited);
+        }
+    }
+
+    private void setActiveChipStyle(MaterialCardView card, TextView text) {
+        card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.primary_blue));
+        card.setStrokeWidth(0);
+        text.setTextColor(Color.WHITE);
+    }
+
+    private void resetChipStyle(MaterialCardView card, TextView text) {
+        card.setCardBackgroundColor(Color.WHITE);
+        card.setStrokeWidth(1);
+        card.setStrokeColor(Color.parseColor("#E2E8F0"));
+        text.setTextColor(Color.parseColor("#475569"));
     }
 
     private void setupRecyclerView() {
@@ -72,8 +145,8 @@ public class GuestListActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
-                // Hiện nút + khi ở tab "Tất cả khách" cho cả Quản lý và Nhân viên
                 binding.fabAddGuest.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
+                binding.filterContainer.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
                 updateListBasedOnTab(position);
             }
 
@@ -84,23 +157,19 @@ public class GuestListActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
         
-        // Mặc định ẩn nút + vì ban đầu ở tab 0
         binding.fabAddGuest.setVisibility(View.GONE);
+        binding.filterContainer.setVisibility(View.GONE);
     }
 
     private void loadData() {
         executorService.execute(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
-            // Lấy danh sách khách mời cho sự kiện này
             invitedGuests = db.eventGuestDao().getGuestsByEventId(eventId);
-            // Gán nhãn "Đã mời" cho hiển thị
             for (Guest g : invitedGuests) {
                 g.setStatus("Đã mời");
             }
 
-            // Lấy toàn bộ khách trong hệ thống
             allSystemGuests = db.guestDao().getAllGuests();
-            // Đối với tab Tất cả, chúng ta có thể kiểm tra xem ai đã được mời vào sự kiện này chưa
             for (Guest g : allSystemGuests) {
                 boolean isInvited = false;
                 for (Guest invited : invitedGuests) {
@@ -119,11 +188,39 @@ public class GuestListActivity extends AppCompatActivity {
     }
 
     private void updateListBasedOnTab(int position) {
-        List<Guest> listToShow = (position == 0) ? invitedGuests : allSystemGuests;
+        List<Guest> sourceList = (position == 0) ? invitedGuests : allSystemGuests;
+        List<Guest> listToShow = new ArrayList<>();
+
+        String query = currentSearchQuery.toLowerCase();
+        
+        for (Guest guest : sourceList) {
+            boolean matchesSearch = query.isEmpty() || guest.getName().toLowerCase().contains(query);
+            boolean matchesFilter = true;
+
+            if (position == 1) { // Chỉ lọc status ở tab "Tất cả khách"
+                if (filterStatus.equals("INVITED")) {
+                    matchesFilter = guest.getStatus().equals("Đã mời");
+                } else if (filterStatus.equals("NOT_INVITED")) {
+                    matchesFilter = guest.getStatus().equals("Chưa mời");
+                }
+            }
+
+            if (matchesSearch && matchesFilter) {
+                listToShow.add(guest);
+            }
+        }
         
         if (listToShow.isEmpty()) {
             binding.tvEmptyState.setVisibility(View.VISIBLE);
-            binding.tvEmptyState.setText(position == 0 ? "Chưa có khách mời nào cho sự kiện này" : "Hệ thống chưa có khách hàng nào");
+            if (currentSearchQuery.isEmpty()) {
+                if (position == 1 && !filterStatus.equals("ALL")) {
+                    binding.tvEmptyState.setText("Không có khách hàng nào ở trạng thái này");
+                } else {
+                    binding.tvEmptyState.setText(position == 0 ? "Chưa có khách mời nào cho sự kiện này" : "Hệ thống chưa có khách hàng nào");
+                }
+            } else {
+                binding.tvEmptyState.setText("Không tìm thấy khách hàng nào khớp với \"" + currentSearchQuery + "\"");
+            }
         } else {
             binding.tvEmptyState.setVisibility(View.GONE);
         }

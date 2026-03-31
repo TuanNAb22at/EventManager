@@ -100,10 +100,11 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <View
+                    <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:background="@drawable/bg_circle_translucent" />
+                        android:src="@drawable/ic_users"
+                        app:tint="@color/primary_blue" />
 
                     <TextView
                         android:id="@+id/tvAttendees"
