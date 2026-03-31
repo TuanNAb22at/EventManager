@@ -30,7 +30,7 @@ public interface BudgetDao {
     Budget getBudgetById(int id);
 
     /**
-     * Lấy một budget theo id (phiên bản đồng bộ)
+     * Lấy một budget theo id  (phiên bản đồng bộ)
      */
     @Query("SELECT * FROM budget WHERE id = :id")
     Budget getBudgetByIdSync(int id);
