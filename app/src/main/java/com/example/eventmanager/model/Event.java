@@ -4,16 +4,24 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
-
+/**
+ * Entity Event đại diện cho bảng event trong cơ sở dữ liệu Room.
+ **/
 @Entity(
     tableName = "event",
     foreignKeys = {
+/**
+ * Khóa ngoại locationId tham chiếu đến bảng Location.
+ **/
         @ForeignKey(
             entity = Location.class,
             parentColumns = "id",
             childColumns = "locationId",
             onDelete = ForeignKey.SET_NULL
         ),
+/**
+ * Khóa ngoại createdBy tham chiếu đến bảng User.
+ **/
         @ForeignKey(
             entity = User.class,
             parentColumns = "id",
@@ -23,6 +31,11 @@ import androidx.room.PrimaryKey;
     }
 )
 public class Event {
+    /**
+     * Khóa chính của bảng event.
+     * autoGenerate = true nghĩa là Room tự động tăng id
+     * khi thêm một sự kiện mới.
+     */
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String name;
@@ -31,10 +44,17 @@ public class Event {
     private String startAt;
     private String endAt;
     private String bannerUri; // Đường dẫn ảnh bìa sự kiện
-    
+/**
+ * Id địa điểm tổ chức sự kiện.
+ *
+ * @ColumnInfo(index = true) giúp tạo chỉ mục cho cột này,
+ * hỗ trợ truy vấn nhanh hơn khi cần lấy sự kiện theo địa điểm.
+ */
     @ColumnInfo(index = true)
     private Integer locationId;
-    
+/**
+ * Id người dùng tạo sự kiện.
+ */
     @ColumnInfo(index = true)
     private Integer createdBy;
 
@@ -44,7 +64,14 @@ public class Event {
     
     private long createdAt;
     private long updatedAt;
-
+    /**
+     * Constructor mặc định.
+     *
+     * Khi tạo sự kiện mới, hệ thống tự động gán:
+     * - thời điểm tạo là thời điểm hiện tại
+     * - thời điểm cập nhật là thời điểm hiện tại
+     * - trạng thái mặc định là "Đang lên kế hoạch"
+     */
     public Event() {
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
